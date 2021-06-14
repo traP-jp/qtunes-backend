@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./:/go/src/github.com/hackathon-21-spring-02/back-end
+    # entrypoint: dockerize -timeout 60s -wait tcp://mysql:3306
+    command: ./main
+    expose:
+      - "80"
+      - "6060"
+    ports:
+      - "1325:1325"
+    depends_on:
+      - mariadb
+
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: 21hack02
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
