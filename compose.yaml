@@ -14,7 +14,7 @@ services:
       - "80"
       - "6060"
     ports:
-      - "1325:1325"
+      - "3000:3000"
     depends_on:
       - mariadb
 

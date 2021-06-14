@@ -12,7 +12,7 @@ startup: |
   go build -o main
 entrypoint: ./main
 
-http_proxy: 3001
+http_proxy: 3000
 
 https: on
 
