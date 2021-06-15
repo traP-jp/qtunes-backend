@@ -8,7 +8,7 @@ import (
 )
 
 // getUsers GET /users
-func getUsers(c echo.Context) error {
+func getUsersHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	users, err := model.GetUsers(ctx)
 	if err != nil {

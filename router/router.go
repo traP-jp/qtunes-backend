@@ -50,15 +50,15 @@ func SetRouting(sess sess.Session) {
 		// ユーザー情報
 		apiUsers := api.Group("/users")
 		{
-			apiUsers.GET("", getUsers , userAuthMiddleware)
+			apiUsers.GET("", getUsersHandler , userAuthMiddleware)
 		}
 
 		// OAuth関連
 		apiOAuth := api.Group("/oauth")
 		{
-			apiOAuth.GET("/callback", CallbackHandler)
-			apiOAuth.GET("/generate/code", PostGenerateCodeHandler)
-			apiOAuth.POST("/logout", PostLogoutHandler, userAuthMiddleware)
+			apiOAuth.GET("/callback", callbackHandler)
+			apiOAuth.GET("/generate/code", postGenerateCodeHandler)
+			apiOAuth.POST("/logout", postLogoutHandler, userAuthMiddleware)
 		}
 	}
 

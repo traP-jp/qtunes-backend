@@ -34,8 +34,8 @@ type PkceParams struct {
 	ResponseType        string `json:"responseType,omitempty"`
 }
 
-// CallbackHandler GET /oauth/callbackのハンドラー
-func CallbackHandler(c echo.Context) error {
+// callbackHandler GET /oauth/callbackのハンドラー
+func callbackHandler(c echo.Context) error {
 	code := c.QueryParam("code")
 	if len(code) == 0 {
 		return c.String(http.StatusBadRequest, "Code Is Null")
@@ -85,8 +85,8 @@ func CallbackHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// PostLogoutHandler POST /oauth/logoutのハンドラー
-func PostLogoutHandler(c echo.Context) error {
+// postLogoutHandler POST /oauth/logoutのハンドラー
+func postLogoutHandler(c echo.Context) error {
 	accessToken := c.Get("accessToken").(string)
 
 	path := *baseURL
@@ -117,8 +117,8 @@ func PostLogoutHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// PostGenerateCodeHandler POST /oauth/generate/codeのハンドラー
-func PostGenerateCodeHandler(c echo.Context) error {
+// postGenerateCodeHandler POST /oauth/generate/codeのハンドラー
+func postGenerateCodeHandler(c echo.Context) error {
 	sess, err := session.Get("sessions", c)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
