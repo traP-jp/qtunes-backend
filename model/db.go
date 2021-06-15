@@ -34,6 +34,9 @@ func InitDB() (*sqlx.DB, error) {
 	}
 
 	_db, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", user, pass, host, dbname)+"?parseTime=True&loc=Asia%2FTokyo&charset=utf8mb4")
+	if err != nil {
+		return nil, err
+	}
 	db = _db
 
 	return db, err
