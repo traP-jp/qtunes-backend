@@ -1,33 +1,26 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
+	"log"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/hackathon-21-spring-02/back-end/model"
+	"github.com/hackathon-21-spring-02/back-end/router"
+	sess "github.com/hackathon-21-spring-02/back-end/session"
 )
 
 func main() {
+	log.Println("Server Started.")
 
-	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	api := e.Group("/api")
-	v1 := api.Group("/v1")
-	{
-		apiPing := v1.Group("/ping")
-		{
-			apiPing.GET("", func(c echo.Context) error {
-				return echo.NewHTTPError(http.StatusOK, "pong!")
-			})
-		}
-	}
-
-	err := e.Start(":3000")
+	db, err := model.InitDB()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("DB Error: %w", err)) //TODO
 	}
-}
 
+	sess, err := sess.NewSession(db.DB)
+	if err != nil {
+		panic(err) //TODO
+	}
+
+	router.SetRouting(sess)
+}
