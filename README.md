@@ -3,7 +3,6 @@
 ## Requirements
 docker
 make
-bash
 
 ## ビルド
 ```
