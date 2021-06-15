@@ -69,7 +69,7 @@ func callbackHandler(c echo.Context) error {
 	}
 
 	sess.Values["id"] = user.ID
-	sess.Values["name"] = user.Name
+	sess.Values["traq_id"] = user.TraqID
 
 	sess.Options = &sessions.Options{
 		Path:     "/",
