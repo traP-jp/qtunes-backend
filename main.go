@@ -6,7 +6,7 @@ import (
 
 	"github.com/hackathon-21-spring-02/back-end/model"
 	"github.com/hackathon-21-spring-02/back-end/router"
-	sess "github.com/hackathon-21-spring-02/back-end/session"
+	"github.com/hackathon-21-spring-02/back-end/session"
 )
 
 func main() {
@@ -14,12 +14,12 @@ func main() {
 
 	db, err := model.InitDB()
 	if err != nil {
-		panic(fmt.Errorf("DB Error: %w", err)) //TODO
+		panic(fmt.Errorf("DB Error: %w", err))
 	}
 
-	sess, err := sess.NewSession(db.DB)
+	sess, err := session.NewSession(db.DB)
 	if err != nil {
-		panic(err) //TODO
+		panic(fmt.Errorf("Session Error: %w", err))
 	}
 
 	router.SetRouting(sess)
