@@ -69,7 +69,7 @@ func callbackHandler(c echo.Context) error {
 	}
 
 	sess.Values["id"] = user.ID
-	sess.Values["traq_id"] = user.TraqID
+	sess.Values["name"] = user.Name
 
 	sess.Options = &sessions.Options{
 		Path:     "/",
@@ -224,7 +224,7 @@ func getMe(accessToken string) (*model.User, error) {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	var user model.User
+	user := model.User{}
 	err = json.NewDecoder(res.Body).Decode(&user)
 	if err != nil {
 		return nil, err
