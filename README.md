@@ -1,13 +1,17 @@
 # back end
 
+## Requirements
+docker
+make
+
 ## ビルド
 ```
-$ docker compose up
+$ make up
 ```
 
 ## コンテナの停止
 ```
-$ docker compose down
+$ make down
 ```
 
 ## OAuth
@@ -18,5 +22,5 @@ $ docker compose down
 
 ## フォーマット
 ```
-$ golangci-lint run
+$ make lint
 ```
