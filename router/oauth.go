@@ -224,7 +224,7 @@ func getMe(accessToken string) (*model.User, error) {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	var user model.User
+	user := model.User{}
 	err = json.NewDecoder(res.Body).Decode(&user)
 	if err != nil {
 		return nil, err

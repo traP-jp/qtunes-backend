@@ -50,7 +50,7 @@ func SetRouting(sess sess.Session) {
 		// ユーザー情報
 		apiUsers := api.Group("/users")
 		{
-			apiUsers.GET("", getUsersHandler , userAuthMiddleware)
+			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
 		}
 
 		// OAuth関連
@@ -62,7 +62,11 @@ func SetRouting(sess sess.Session) {
 		}
 	}
 
-	err := e.Start(os.Getenv("PORT"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3000"
+	}
+	err := e.Start(port)
 	if err != nil {
 		panic(err)
 	}
