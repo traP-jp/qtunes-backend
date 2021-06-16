@@ -3,7 +3,7 @@ CREATE DATABASE 21hack02;
 USE 21hack02;
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` varchar(36) PRIMARY KEY NOT NULL,
-  `name` varchar(36) NOT NULL UNIQUE,
-  `status` tinyint(1) NOT NULL DEFAULT 0
+  `id` char(36) PRIMARY KEY NOT NULL,
+  `traq_id` char(36) NOT NULL UNIQUE,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
