@@ -133,6 +133,25 @@ paths:
         '404':
           description: Not Found
       operationId: getFile
+  /files/:fileID/download:
+    parameters:
+      - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+        - file
+      summary: ファイルのダウンロード
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not Found
+      operationId: getFileDownload
+
   /files/{fileId}/favorite:
     parameters:
       - $ref: '#/components/parameters/fileId'
