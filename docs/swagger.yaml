@@ -1,0 +1,282 @@
+openapi: 3.0.0
+info:
+  title: 21hack02 API
+  description: spring hackathon
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:3000/api'
+  - url: 'http://main.back-end.hackathon21_spring_02.trap.show/api'
+
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      operationId: getUsers
+      summary: 全ユーザー情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  '/users/{userId}':
+    parameters:
+      - $ref: '#/components/parameters/userId'
+    get:
+      tags:
+        - user
+      summary: ユーザー詳細情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Not Found
+      operationId: getUser
+  /users/me:
+    get:
+      tags:
+        - user
+      summary: 自分のユーザー情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMe'
+  /composers:
+    get:
+      tags:
+        - composer
+      operationId: getComposers
+      summary: 全投稿者情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Composer'
+  '/composers/{composerId}':
+    parameters:
+      - $ref: '#/components/parameters/composerId'
+    get:
+      tags:
+        - composer
+      summary: 投稿者詳細情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Composer'
+        '404':
+          description: Not Found
+      operationId: getComposer
+  '/composers/{composerId}/files':
+    parameters:
+      - $ref: '#/components/parameters/composerId'
+    get:
+      tags:
+        - composer
+      summary: 投稿者のファイル情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: Not Found
+      operationId: getComposerFiles
+  /files:
+    get:
+      tags:
+        - file
+      operationId: getFiles
+      summary: 全ファイル情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+  /files/{fileId}:
+    parameters:
+      - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+        - file
+      summary: ファイル詳細情報の取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: Not Found
+      operationId: getFile
+  /files/{fileId}/favorite:
+    parameters:
+      - $ref: '#/components/parameters/fileId'
+    put:
+      tags:
+        - file
+      summary: ファイルお気に入り情報の変更
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IsFavorite'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '404':
+          description: Not Found
+      operationId: putFileFavorite
+
+components:
+  parameters:
+    userId:
+      name: userId
+      description: ユーザーUUID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    composerId:
+      name: composerId
+      description: 投稿者UUID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    fileId:
+      name: fileId
+      description: ファイルUUID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    User:
+      title: User
+      type: object
+      description: ユーザー情報
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーUUID
+        name:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+          description: ユーザー名
+      required:
+        - id
+        - name
+    UserMe:
+      title: UserMe
+      type: object
+      description: 自分の情報
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 自分のユーザーUUID
+        name:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+          description: 自分のユーザー名
+        favoriteFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/FavoriteFile'
+          description: お気に入り曲のUUIDの配列
+      required:
+        - id
+        - name
+        - favoriteFiles
+    FavoriteFile:
+      title: favoriteFile
+      type: string
+      description: お気に入り曲のUUID
+    File:
+      title: File
+      type: object
+      description: ファイル情報
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ファイルUUID
+        composer_id:
+          type: string
+          format: uuid
+          description: ファイル投稿者UUID
+        favorite_num:
+          type: integer
+          description: お気に入り数
+        created_at:
+          type: string
+          description: 作成日時
+      required:
+        - id
+        - composer_id
+        - favorite_num
+        - created_at
+    IsFavorite:
+      title: File
+      type: object
+      description: お気に入りかどうか
+      properties:
+        is_favorite:
+          type: boolean
+          description: お気に入りかどうか
+      required:
+        - id_favorite
+    Composer:
+      title: Composer
+      type: object
+      description: 投稿者情報
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 投稿者UUID
+        name:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+          description: 投稿者名
+        post_num:
+          type: integer
+          description: 投稿数
+      required:
+        - id
+        - name
+        - post_num
