@@ -34,13 +34,6 @@ type PkceParams struct {
 	ResponseType        string `json:"responseType,omitempty"`
 }
 
-// TraqUser traQからdecodeするために必要
-// TODO: そもそもmodel.User.traq_idをnameにするべき？
-type TraqUser struct {
-	ID   string
-	Name string
-}
-
 // callbackHandler GET /oauth/callbackのハンドラー
 func callbackHandler(c echo.Context) error {
 	code := c.QueryParam("code")
@@ -231,15 +224,10 @@ func getMe(accessToken string) (*model.User, error) {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	u := TraqUser{}
-	err = json.NewDecoder(res.Body).Decode(&u)
+	user := model.User{}
+	err = json.NewDecoder(res.Body).Decode(&user)
 	if err != nil {
 		return nil, err
-	}
-
-	user := model.User{
-		ID:     u.ID,
-		TraqID: u.Name,
 	}
 
 	return &user, nil
