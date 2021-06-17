@@ -39,6 +39,7 @@ func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
 	}
 	params := req.URL.Query()
 	params.Add("channelId", "8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
+	params.Add("limit", "200")
 	req.URL.RawQuery = params.Encode()
 
 	req.Header.Set("Authorization", "Bearer "+accessToken)
@@ -56,11 +57,11 @@ func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var audioFiles []*FileInfo
 	var fileElement FileInfo
 
-	for _,v :=  range files{
+	for _, v := range files {
 		fileElement = *v
 		if strings.HasPrefix(fileElement.Mime, "audio") {
 			audioFiles = append(audioFiles, v)
