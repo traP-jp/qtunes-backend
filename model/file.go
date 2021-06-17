@@ -77,7 +77,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 			audioFiles = append(audioFiles, &domain.File{
 				ID:             v.ID,
 				ComposerID:     v.UpLoaderId,
-				FavoriteCount:  favoriteCounts[v.UpLoaderId],
+				FavoriteCount:  favoriteCounts[v.ID],
 				IsFavoriteByMe: myFavorites[v.ID],
 				CreatedAt:      v.CreatedAt,
 			})
@@ -85,6 +85,60 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 	}
 
 	return audioFiles, nil
+}
+
+func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*domain.File, error) {
+	path := *baseURL
+	path.Path += fmt.Sprintf("/files/%s/meta", fileID)
+	req, err := http.NewRequest("GET", path.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	params := req.URL.Query()
+	params.Add("channelId", "8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
+	params.Add("limit", "200")
+	req.URL.RawQuery = params.Encode()
+
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	httpClient := http.DefaultClient
+	res, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+
+	file := FileInfo{}
+	err = json.NewDecoder(res.Body).Decode(&file)
+	if err != nil {
+		return nil, err
+	}
+
+	if !strings.HasPrefix(file.Mime, "audio") {
+		return nil, fmt.Errorf("")
+	}
+
+	// DBからお気に入りを取得
+	favoriteCount, err := getFavoriteCount(ctx, fileID)
+	if err != nil {
+		return nil, err
+	}
+	// DBから自分がお気に入りに追加しているかを取得
+	isFavoriteByMe, err := getMyFavorite(ctx, userID, fileID)
+	if err != nil {
+		return nil, err
+	}
+
+	audioFile := &domain.File{
+		ID:             file.ID,
+		ComposerID:     file.UpLoaderId,
+		FavoriteCount:  favoriteCount.Count,
+		IsFavoriteByMe: isFavoriteByMe,
+		CreatedAt:      file.CreatedAt,
+	}
+
+	return audioFile, nil
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*http.Response, error) {

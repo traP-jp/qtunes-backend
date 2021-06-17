@@ -44,3 +44,20 @@ func getFilesHandler(c echo.Context) error {
 
 	return echo.NewHTTPError(http.StatusOK, files)
 }
+
+func getFileHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	fileID := c.Param("fileID")
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err).Error())
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
+	file, err := model.GetFile(ctx, accessToken, userID, fileID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, file)
+}
