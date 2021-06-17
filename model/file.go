@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -55,6 +56,16 @@ func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	
+	var audioFiles []*FileInfo
+	var fileElement FileInfo
+	for i := 0; i < len(files); i++ {
+		fileElement = *files[i]
+		if strings.HasPrefix(fileElement.Mime, "audio") {
+			audioFiles = append(audioFiles, files[i])
+		}
 
-	return files, nil
+	}
+
+	return audioFiles, nil
 }
