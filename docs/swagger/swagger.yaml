@@ -7,6 +7,11 @@ servers:
   - url: 'http://localhost:3000/api'
   - url: 'http://main.back-end.hackathon21_spring_02.trap.show/api'
 
+tags:
+- name: user
+- name: composer
+- name: file
+- name: oauth
 paths:
   /users:
     get:
@@ -177,6 +182,53 @@ paths:
         404:
           description: Not Found
       operationId: putFileFavorite
+  /oauth/callback:
+    parameters:
+      - name: code
+        in: query
+        required: true
+        description: OAuth2.0のcode
+        schema:
+          type: string
+    get:
+      tags:
+        - oauth
+      summary: OAuthのコールバック
+      description: OAuthのコールバック
+      operationId: callback
+      responses:
+        "200":
+          description: 成功
+        "302":
+          description: 失敗時。認証ページへリダイレクト
+  /oauth/generate/code:
+    get:
+      tags:
+        - oauth
+      summary: OAuthのcode_challengeとかの取得
+      description: OAuthのcode_challengeとかの取得
+      operationId: getGeneratedCode
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Code'
+        "500":
+          description: サーバー内エラー
+  /oauth/logout:
+    post:
+      tags:
+        - oauth
+      summary: ログアウト
+      description: ログアウト
+      operationId: postLogout
+      responses:
+        "200":
+          description: 成功
+        "500":
+          description: サーバー内エラー
 
 components:
   parameters:
@@ -263,6 +315,9 @@ components:
         favorite_num:
           type: integer
           description: お気に入り数
+        is_favorite_by_me:
+          type: boolean
+          description: 自分がファイルをお気に入りに追加しているかどうか
         created_at:
           type: string
           format: date-time
@@ -271,6 +326,7 @@ components:
         - id
         - composer_id
         - favorite_num
+        - is_favorite_by_me
         - created_at
     Favorite:
       title: Favorite
@@ -302,3 +358,20 @@ components:
         - id
         - name
         - post_num
+    Code:
+      description: OAuthのコード
+      type: object
+      properties:
+        codeChallenge:
+          type: string
+        codeChallengeMethod:
+          type: string
+        clientID:
+          type: string
+        responseType:
+          type: string
+      required:
+        - codeChallenge
+        - codeChallengeMethod
+        - clientID
+        - responseType
