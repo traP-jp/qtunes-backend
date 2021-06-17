@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/hackathon-21-spring-02/back-end/domain"
 )
 
 type FileInfo struct {
@@ -30,7 +32,7 @@ type FileInfo struct {
 
 var baseURL, _ = url.Parse("https://q.trap.jp/api/v3")
 
-func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
+func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
 	path := *baseURL
 	path.Path += "/files"
 	req, err := http.NewRequest("GET", path.String(), nil)
@@ -58,13 +60,28 @@ func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
 		return nil, err
 	}
 
-	var audioFiles []*FileInfo
+	// DBからお気に入りを取得
+	favoriteCounts, err := getFavoriteCounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// DBから自分がお気に入りに追加しているかを取得
+	myFavorites, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 
+	audioFiles := make([]*domain.File, 0, len(files))
 	for _, v := range files {
 		if strings.HasPrefix(v.Mime, "audio") {
-			audioFiles = append(audioFiles, v)
+			audioFiles = append(audioFiles, &domain.File{
+				ID:             v.ID,
+				ComposerID:     v.UpLoaderId,
+				FavoriteCount:  favoriteCounts[v.UpLoaderId],
+				IsFavoriteByMe: myFavorites[v.ID],
+				CreatedAt:      v.CreatedAt,
+			})
 		}
-
 	}
 
 	return audioFiles, nil
