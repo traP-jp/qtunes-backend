@@ -27,13 +27,12 @@ type ComposersInfo struct {
 	ChannelID  string `json:"channelId"`
 	UploaderID string `json:"uploaderId"`
 }
-func GetComposers() ([]*ComposersInfo,error){
+func GetComposers() (map[string]string,error){
 	v:=url.Values{}
-	var baseUrl,_=url.Parse("https://q.trap.jp/api/v3")
-	const soundChannelId="8bd9e07a-2c6a-49e6-9961-4f88e83b4918"
+
 	v.Set("channelId",soundChannelId)
 	reqBody:=strings.NewReader(v.Encode())
-	path:=*baseUrl
+	path:=*BaseUrl
 	path.Path+="/files"
 	req,err:=http.NewRequest("GET",path.String(),reqBody)
 	if err != nil {
@@ -55,7 +54,13 @@ func GetComposers() ([]*ComposersInfo,error){
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, err
 	}
-	return data,err
+
+	var result =make(map[string]string,0)
+	for _,r:=range data{
+		result[r.UploaderID]=r.Name
+	}
+	return result,err
+
 
 }
 
