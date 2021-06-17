@@ -137,7 +137,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File '
+                $ref: '#/components/schemas/File'
         404:
           description: Not Found
       operationId: getFile
@@ -315,7 +315,7 @@ components:
         favorite_num:
           type: integer
           description: お気に入り数
-        user_favorite:
+        is_favorite_by_me:
           type: boolean
           description: 自分がファイルをお気に入りに追加しているかどうか
         created_at:
@@ -326,7 +326,7 @@ components:
         - id
         - composer_id
         - favorite_num
-        - user_favorite
+        - is_favorite_by_me
         - created_at
     Favorite:
       title: Favorite
