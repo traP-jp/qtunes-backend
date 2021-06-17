@@ -27,7 +27,7 @@ type ComposersInfo struct {
 	ChannelID  string `json:"channelId"`
 	UploaderID string `json:"uploaderId"`
 }
-func GetComposers() (*[]ComposersInfo,error){
+func GetComposers() ([]*ComposersInfo,error){
 	v:=url.Values{}
 	var baseUrl,_=url.Parse("https://q.trap.jp/api/v3")
 	const soundChannelId="8bd9e07a-2c6a-49e6-9961-4f88e83b4918"
@@ -49,7 +49,7 @@ func GetComposers() (*[]ComposersInfo,error){
 	if res.StatusCode != 200 {
 		return  nil,fmt.Errorf("Failed In Getting Information:(Status:%d %s)", res.StatusCode, res.Status)
 	}
-	data:=new([]ComposersInfo)
+	data:=make([]*ComposersInfo,0)
 
 	body,err:=ioutil.ReadAll(res.Body)
 	if err := json.Unmarshal(body, &data); err != nil {
