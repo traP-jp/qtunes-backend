@@ -52,6 +52,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserMe'
+        404:
+          description: Not Found
+      operationId: getMe
   /composers:
     get:
       tags:
@@ -133,7 +136,7 @@ paths:
         404:
           description: Not Found
       operationId: getFile
-  /files/:fileID/download:
+  /files/{fileID}/download:
     parameters:
       - $ref: '#/components/parameters/fileId'
     get:
@@ -262,6 +265,7 @@ components:
           description: お気に入り数
         created_at:
           type: string
+          format: date-time
           description: 作成日時
       required:
         - id
