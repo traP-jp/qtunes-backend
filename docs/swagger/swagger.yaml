@@ -298,7 +298,6 @@ components:
     FavoriteFile:
       title: FavoriteFile
       type: string
-      format: uuid
       description: お気に入り曲のUUID
     File:
       title: File
@@ -313,7 +312,7 @@ components:
           type: string
           format: uuid
           description: ファイル投稿者UUID
-        facorite_count:
+        favorite_num:
           type: integer
           description: お気に入り数
         is_favorite_by_me:
@@ -326,7 +325,7 @@ components:
       required:
         - id
         - composer_id
-        - facorite_count
+        - favorite_num
         - is_favorite_by_me
         - created_at
     Favorite:
@@ -352,13 +351,13 @@ components:
           type: string
           pattern: '^[a-zA-Z0-9_-]{1,32}$'
           description: 投稿者名
-        post_count:
+        post_num:
           type: integer
           description: 投稿数
       required:
         - id
         - name
-        - post_count
+        - post_num
     Code:
       description: OAuthのコード
       type: object
