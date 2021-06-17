@@ -177,6 +177,53 @@ paths:
         404:
           description: Not Found
       operationId: putFileFavorite
+  /oauth/callback:
+    parameters:
+      - name: code
+        in: query
+        required: true
+        description: OAuth2.0のcode
+        schema:
+          type: string
+    get:
+      tags:
+        - oauth
+      summary: OAuthのコールバック
+      description: OAuthのコールバック
+      operationId: callback
+      responses:
+        "200":
+          description: 成功
+        "302":
+          description: 失敗時。認証ページへリダイレクト
+  /oauth/generate/code:
+    get:
+      tags:
+        - oauth
+      summary: OAuthのcode_challengeとかの取得
+      description: OAuthのcode_challengeとかの取得
+      operationId: getGeneratedCode
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Code'
+        "500":
+          description: サーバー内エラー
+  /oauth/logout:
+    post:
+      tags:
+        - oauth
+      summary: ログアウト
+      description: ログアウト
+      operationId: postLogout
+      responses:
+        "200":
+          description: 成功
+        "500":
+          description: サーバー内エラー
 
 components:
   parameters:
@@ -302,3 +349,20 @@ components:
         - id
         - name
         - post_num
+    Code:
+      description: OAuthのコード
+      type: object
+      properties:
+        codeChallenge:
+          type: string
+        codeChallengeMethod:
+          type: string
+        clientID:
+          type: string
+        responseType:
+          type: string
+      required:
+        - codeChallenge
+        - codeChallengeMethod
+        - clientID
+        - responseType
