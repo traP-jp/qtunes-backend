@@ -10,8 +10,7 @@ import (
 	"time"
 )
 
-
-type ComposersInfo []struct {
+type ComposersInfo struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
 	Mime            string    `json:"mime"`
@@ -30,27 +29,13 @@ type ComposersInfo []struct {
 }
 func GetComposers() (*[]ComposersInfo,error){
 	v:=url.Values{}
-	const FORMAT="2016-10-12T11:00:00.0000000Z"
-	const baseUrl="https://q.trap.jp/api/v3"
+	var baseUrl,_=url.Parse("https://q.trap.jp/api/v3")
 	const soundChannelId="8bd9e07a-2c6a-49e6-9961-4f88e83b4918"
-	now:=time.Now().Format(FORMAT)
 	v.Set("channelId",soundChannelId)
-	v.Set("limit","0")
-	v.Set("offset","0")
-	v.Set("since","0000-01-01T00:00:00.000000Z")
-	v.Set("until",now)
-	v.Set("inclusive","false")
-	v.Set("order","desc")
-	v.Set("mine","false")
-	reqbody:=strings.NewReader(v.Encode())
-	path:=baseUrl+"/files"
-	/* parseしてエラーハンドリングしたほうがいいのか？
-	u,err:=url.Parse(path)
-	if err != nil {
-		return ComposersInfo{}, err
-	}
-	uStr:=u.String()*/
-	req,err:=http.NewRequest("GET",path,reqbody)
+	reqBody:=strings.NewReader(v.Encode())
+	path:=*baseUrl
+	path.Path+="/files"
+	req,err:=http.NewRequest("GET",path.String(),reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +50,7 @@ func GetComposers() (*[]ComposersInfo,error){
 		return  nil,fmt.Errorf("Failed In Getting Information:(Status:%d %s)", res.StatusCode, res.Status)
 	}
 	data:=new([]ComposersInfo)
-	//TODo:ここやばい？
+
 	body,err:=ioutil.ReadAll(res.Body)
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, err
@@ -73,3 +58,4 @@ func GetComposers() (*[]ComposersInfo,error){
 	return data,err
 
 }
+
