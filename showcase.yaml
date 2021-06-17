@@ -18,7 +18,5 @@ https: on
 
 use_mariadb: true
 
-internal: hard
-
 branch:
   main:
