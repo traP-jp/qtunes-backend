@@ -59,10 +59,11 @@ func GetFiles(ctx context.Context, accessToken string) ([]*FileInfo, error) {
 	
 	var audioFiles []*FileInfo
 	var fileElement FileInfo
-	for i := 0; i < len(files); i++ {
-		fileElement = *files[i]
+
+	for _,v :=  range files{
+		fileElement = *v
 		if strings.HasPrefix(fileElement.Mime, "audio") {
-			audioFiles = append(audioFiles, files[i])
+			audioFiles = append(audioFiles, v)
 		}
 
 	}
