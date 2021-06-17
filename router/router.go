@@ -53,6 +53,12 @@ func SetRouting(sess sess.Session) {
 			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
 		}
 
+		//作曲者
+		apiComposers:=api.Group("/composers")
+		{
+			apiComposers.GET("",getComposersHandler,userAuthMiddleware)
+		}
+
 		// OAuth関連
 		apiOAuth := api.Group("/oauth")
 		{
