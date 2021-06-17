@@ -137,7 +137,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/FileWithUserFavorite'
         404:
           description: Not Found
       operationId: getFile
@@ -315,6 +315,34 @@ components:
         favorite_num:
           type: integer
           description: お気に入り数
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+      required:
+        - id
+        - composer_id
+        - favorite_num
+        - created_at
+    FileWithUserFavorite:
+      title: FileWithUserFavorite
+      type: object
+      description: ファイル情報
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ファイルUUID
+        composer_id:
+          type: string
+          format: uuid
+          description: ファイル投稿者UUID
+        favorite_num:
+          type: integer
+          description: お気に入り数
+        user_favorite:
+          type: boolean
+          description: 自分がファイルをお気に入りに追加しているかどうか
         created_at:
           type: string
           format: date-time
