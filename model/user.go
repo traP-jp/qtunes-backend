@@ -12,6 +12,11 @@ type User struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
+type UserIdInfo struct {
+	ID   string `json:"id"  db:"id"`
+	Name string `json:"name"  db:"name"`
+}
+
 func GetUsers(ctx context.Context) ([]*User, error) {
 	users := []*User{}
 	err := db.SelectContext(ctx, &users, "SELECT * FROM users")
@@ -29,4 +34,14 @@ func CreateUser(ctx context.Context, user *User) error {
 	}
 
 	return nil
+}
+
+func GetUser(ctx context.Context, accessToken string) ([]*UserIdInfo, error) {
+	userId := []*UserIdInfo{}
+	err := db.SelectContext(ctx, &userId, "SELECT * FROM users WHERE ID=c.Param(\"userID\") ")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get users: %w", err)
+	}
+
+	return userId, nil
 }
