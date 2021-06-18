@@ -45,6 +45,7 @@ func getFilesHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, files)
 }
 
+// getFileHandler GET /files/:fileID
 func getFileHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	fileID := c.Param("fileID")
@@ -60,4 +61,35 @@ func getFileHandler(c echo.Context) error {
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
+}
+
+type favorite struct {
+	Favorite bool
+}
+
+// putFileFavoriteHandler PUT /files/:fileID/favorite
+func putFileFavoriteHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	fileID := c.Param("fileID")
+	fav := favorite{}
+	err := c.Bind(&fav)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err))
+	}
+
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
+	err = model.ToggleFileFavorite(ctx, accessToken, userID, fileID, fav.Favorite)
+	if err == model.DBErrs["NoChange"] {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK)
 }
