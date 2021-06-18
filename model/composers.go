@@ -32,40 +32,42 @@ type Composers struct {
 	Name      string `json:"name"`
 	PostCount int    `json:"post_count"`
 }
-func GetComposers(ctx context.Context,accessToken string,composerId string) ([]Composers,error){
-	path:=*BaseUrl
-	path.Path+="/files"
-	req,err:=http.NewRequest("GET",path.String(),nil)
+
+func GetComposers(ctx context.Context, accessToken string, composerId string) ([]Composers, error) {
+	path := *BaseUrl
+	path.Path += "/files"
+	req, err := http.NewRequest("GET", path.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	params:=req.URL.Query()
-	params.Add("channelId","8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
-	params.Add("limit","200")
-	req.URL.RawQuery=params.Encode()
+	params := req.URL.Query()
+	params.Add("channelId", "8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
+	params.Add("limit", "200")
+	req.URL.RawQuery = params.Encode()
 
-	req.Header.Set("content-type","application/json")
-	req.Header.Add("Authorization","Bearer "+accessToken)
+	req.Header.Set("content-type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+accessToken)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if res.StatusCode != 200 {
-		return  nil,fmt.Errorf("Failed In Getting Information:(Status:%d %s)", res.StatusCode, res.Status)
+		return nil, fmt.Errorf("Failed In Getting Information:(Status:%d %s)", res.StatusCode, res.Status)
 	}
-	data:=make([]*ComposersInfo,0)
+	data := make([]*ComposersInfo, 0)
 
-	body,err:=ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, err
 	}
 
-	composers:=[]Composers{}
-	for i,r:=range data{
-		composers[i].ID=r.ID
-		composers[i].Name=r.Name
-		composers[i].PostCount=0
+	composers := []Composers{}
+	for i, r := range data {
+		composers[i].ID = r.ID
+		composers[i].Name = r.Name
+		composers[i].PostCount = 0
 	}
-	return composers,err
+
+	return composers, err
 }
