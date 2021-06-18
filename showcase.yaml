@@ -1,6 +1,12 @@
 type: runtime
 
 startup: |
+  mv /etc/pacman.conf /etc/pacman.conf.old
+  head -n -3 /etc/pacman.conf.old > /etc/pacman.conf
+  mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
+  tail -n +3 /etc/pacman.d/mirrorlist.old > /etc/pacman.d/mirrorlist
+  yes | pacman -R go
+  yes | pacman -Sy go glibc
   go mod download
   go build -o main
 entrypoint: ./main
@@ -13,4 +19,3 @@ use_mariadb: true
 
 branch:
   main:
-  test/showcase:
