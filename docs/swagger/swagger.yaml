@@ -179,6 +179,8 @@ paths:
           description: OK
         404:
           description: Not Found
+        422:
+          description: Unprocessable Entity
       operationId: putFileFavorite
   /oauth/callback:
     parameters:
