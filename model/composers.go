@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -27,19 +25,20 @@ type ComposersInfo struct {
 	ChannelID  string `json:"channelId"`
 	UploaderID string `json:"uploaderId"`
 }
-func GetComposers() (map[string]string,error){
-	v:=url.Values{}
-
-	v.Set("channelId",soundChannelId)
-	reqBody:=strings.NewReader(v.Encode())
+func GetComposers(accessToken string) (map[string]string,error){
 	path:=*BaseUrl
 	path.Path+="/files"
-	req,err:=http.NewRequest("GET",path.String(),reqBody)
+	req,err:=http.NewRequest("GET",path.String(),nil)
 	if err != nil {
 		return nil, err
 	}
+	params:=req.URL.Query()
+	params.Add("channelId","8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
+	params.Add("limit","200")
+	req.URL.RawQuery=params.Encode()
 
 	req.Header.Set("content-type","application/json")
+	req.Header.Add("Authorization","Bearer"+accessToken)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil,err
