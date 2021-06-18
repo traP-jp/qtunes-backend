@@ -28,7 +28,7 @@ type ComposersInfo struct {
 	UploaderID string `json:"uploaderId"`
 }
 
-func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composers, error) {
+func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
 	path := *BaseUrl
 	path.Path += "/files"
 	req, err := http.NewRequest("GET", path.String(), nil)
@@ -57,9 +57,9 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composers,
 		return nil, err
 	}
 
-	composers := make([]*domain.Composers, 0, len(data))
+	composers := make([]*domain.Composer, 0, len(data))
 	for _, v := range data {
-		composers = append(composers, &domain.Composers{
+		composers = append(composers, &domain.Composer{
 			ID:        v.UploaderID,
 			Name:      v.Name,
 			PostCount: 0, //TODO: データベースからとってくるようにする
