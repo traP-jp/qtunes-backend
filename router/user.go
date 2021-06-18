@@ -22,15 +22,16 @@ func getUsersHandler(c echo.Context) error {
 
 func getUserHandler(c echo.Context) error {
 	ctx := c.Request().Context()
+	userID := c.Param("userID")
+
 	sess, err := session.Get("sessions", c)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
 	}
 	accessToken := sess.Values["accessToken"].(string)
-	files, err := model.GetUser(ctx, accessToken)
+	res, err := model.GetUser(ctx, accessToken, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
 	}
-
-	return echo.NewHTTPError(http.StatusOK, files)
+	return echo.NewHTTPError(http.StatusOK, res)
 }
