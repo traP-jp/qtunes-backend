@@ -59,6 +59,13 @@ func SetRouting(sess sess.Session) {
 			apiComposers.GET("",getComposersHandler,userAuthMiddleware)
 		}
 
+		apiFiles := api.Group("/files")
+		{
+			apiFiles.GET("", getFilesHandler, userAuthMiddleware)
+			apiFiles.GET("/:fileID", getFileHandler, userAuthMiddleware)
+			apiFiles.GET("/:fileID/download", getFileDownloadHandler, userAuthMiddleware)
+		}
+
 		// OAuth関連
 		apiOAuth := api.Group("/oauth")
 		{
