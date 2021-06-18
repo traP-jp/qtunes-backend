@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hackathon-21-spring-02/back-end/domain"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -27,13 +28,8 @@ type ComposersInfo struct {
 	UploaderID string `json:"uploaderId"`
 }
 
-type Composers struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	PostCount int    `json:"post_count"`
-}
 
-func GetComposers(ctx context.Context, accessToken string, composerId string) ([]Composers, error) {
+func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composers, error) {
 	path := *BaseUrl
 	path.Path += "/files"
 	req, err := http.NewRequest("GET", path.String(), nil)
@@ -41,7 +37,7 @@ func GetComposers(ctx context.Context, accessToken string, composerId string) ([
 		return nil, err
 	}
 	params := req.URL.Query()
-	params.Add("channelId", "8bd9e07a-2c6a-49e6-9961-4f88e83b4918")
+	params.Add("channelId", SoundChannelId)
 	params.Add("limit", "200")
 	req.URL.RawQuery = params.Encode()
 
@@ -62,11 +58,13 @@ func GetComposers(ctx context.Context, accessToken string, composerId string) ([
 		return nil, err
 	}
 
-	composers := []Composers{}
-	for i, r := range data {
-		composers[i].ID = r.ID
-		composers[i].Name = r.Name
-		composers[i].PostCount = 0
+	composers := make([]*domain.Composers,len(data))
+	for _, v := range data {
+		composers=append(composers,&domain.Composers{
+			ID:        v.UploaderID,
+			Name:      v.Name,
+			PostCount: 0, //TODO: データベースからとってくるようにする
+		})
 	}
 
 	return composers, err

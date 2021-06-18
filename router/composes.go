@@ -16,8 +16,7 @@ func getComposersHandler(c echo.Context) error {
 	}
 
 	accessToken:=sess.Values["accessToken"].(string)
-	userID:=sess.Values["id"].(string)
-	composers,err:=model.GetComposers(ctx,accessToken,userID)
+	composers,err:=model.GetComposers(ctx,accessToken)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError,err)
 	}
