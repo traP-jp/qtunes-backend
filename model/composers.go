@@ -58,7 +58,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composers,
 		return nil, err
 	}
 
-	composers := make([]*domain.Composers,len(data))
+	composers := make([]*domain.Composers,0,len(data))
 	for _, v := range data {
 		composers=append(composers,&domain.Composers{
 			ID:        v.UploaderID,
