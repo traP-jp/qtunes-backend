@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -25,7 +26,13 @@ type ComposersInfo struct {
 	ChannelID  string `json:"channelId"`
 	UploaderID string `json:"uploaderId"`
 }
-func GetComposers(accessToken string) (map[string]string,error){
+
+type Composers struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	PostCount int    `json:"post_count"`
+}
+func GetComposers(ctx context.Context,accessToken string,composerId string) ([]Composers,error){
 	path:=*BaseUrl
 	path.Path+="/files"
 	req,err:=http.NewRequest("GET",path.String(),nil)
@@ -38,7 +45,7 @@ func GetComposers(accessToken string) (map[string]string,error){
 	req.URL.RawQuery=params.Encode()
 
 	req.Header.Set("content-type","application/json")
-	req.Header.Add("Authorization","Bearer"+accessToken)
+	req.Header.Add("Authorization","Bearer "+accessToken)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil,err
@@ -54,12 +61,11 @@ func GetComposers(accessToken string) (map[string]string,error){
 		return nil, err
 	}
 
-	var result =make(map[string]string,0)
-	for _,r:=range data{
-		result[r.UploaderID]=r.Name
+	composers:=[]Composers{}
+	for i,r:=range data{
+		composers[i].ID=r.ID
+		composers[i].Name=r.Name
+		composers[i].PostCount=0
 	}
-	return result,err
-
-
+	return composers,err
 }
-
