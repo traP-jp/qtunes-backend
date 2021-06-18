@@ -1,12 +1,10 @@
 type: runtime
 
 startup: |
-  mysql < ./mysql/init/create_db.sql
   mv /etc/pacman.conf /etc/pacman.conf.old
   head -n -3 /etc/pacman.conf.old > /etc/pacman.conf
   mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
   tail -n +3 /etc/pacman.d/mirrorlist.old > /etc/pacman.d/mirrorlist
-  yes | pacman -Syuu
   yes | pacman -R go
   yes | pacman -Sy go glibc
   go mod download
