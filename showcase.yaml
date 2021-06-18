@@ -1,6 +1,7 @@
 type: runtime
 
 startup: |
+  mysql < ./mysql/init/create_db.sql
   mv /etc/pacman.conf /etc/pacman.conf.old
   head -n -3 /etc/pacman.conf.old > /etc/pacman.conf
   mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
