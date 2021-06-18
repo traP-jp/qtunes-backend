@@ -110,7 +110,7 @@ func SetRouting(sess sess.Session) {
 	if port == "" {
 		port = ":3000"
 	}
-	err := e.Start(port)
+	err = e.Start(port)
 	if err != nil {
 		panic(err)
 	}
