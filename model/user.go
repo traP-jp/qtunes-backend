@@ -16,7 +16,7 @@ type User struct {
 type UsersMe struct {
 	ID            string   `json:"id"  db:"id"`
 	Name          string   `json:"name"  db:"name"`
-	FavoriteFiles []string `json:"favoriteFiles" db:"sound_id"`
+	FavoriteFiles []string `json:"favorite_files" db:"sound_id"`
 }
 
 func GetUsers(ctx context.Context) ([]*User, error) {
@@ -51,19 +51,19 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 func GetUsersMe(ctx context.Context, accessToken string) (*UsersMe, error) {
 
 	var usersMe UsersMe
-	err1 := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users")
-	if err1 != nil {
-		return nil, fmt.Errorf("Failed to get usersMeId: %w", err1)
+	err := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get your information: %w", err)
 	}
 
 	var usersMeFavorites []string
-	err2 := db.SelectContext(ctx, &usersMeFavorites, "SELECT sound_id FROM favorites")
+	err = db.SelectContext(ctx, &usersMeFavorites, "SELECT sound_id FROM favorites")
 	if usersMeFavorites == nil {
 		usersMeFavorites = []string{}
 	}
 
-	if err2 != nil {
-		return nil, fmt.Errorf("Failed to get usersMeFavorites: %w", err2)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get your information: %w", err)
 	}
 	usersMe.FavoriteFiles = usersMeFavorites
 	return &usersMe, nil
