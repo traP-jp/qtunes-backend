@@ -125,3 +125,45 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*h
 
 	return res, nil
 }
+
+func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {
+	composerID := "" //TODO
+	if favorite {
+		path := *baseURL
+		path.Path += fmt.Sprintf("/files/%s/meta", fileID)
+		req, err := http.NewRequest("GET", path.String(), nil)
+		if err != nil {
+			return err
+		}
+		params := req.URL.Query()
+		params.Add("channelId", SoundChannelId)
+		params.Add("limit", "200")
+		req.URL.RawQuery = params.Encode()
+
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+		httpClient := http.DefaultClient
+		res, err := httpClient.Do(req)
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != http.StatusOK {
+			return fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		}
+
+		file := FileInfo{}
+		err = json.NewDecoder(res.Body).Decode(&file)
+		if err != nil {
+			return err
+		}
+
+		if err := insertFileFavorite(ctx, userID, composerID, fileID); err != nil {
+			return err
+		}
+	} else {
+		if err := deleteFileFavorite(ctx, userID, fileID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
