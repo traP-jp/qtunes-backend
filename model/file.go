@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -129,7 +130,7 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*h
 func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {
 	composerID := "" //TODO
 	if favorite {
-		path := *baseURL
+		path := *BaseUrl
 		path.Path += fmt.Sprintf("/files/%s/meta", fileID)
 		req, err := http.NewRequest("GET", path.String(), nil)
 		if err != nil {
