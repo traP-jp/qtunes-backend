@@ -31,21 +31,21 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser:=make(map[*string]int)
+	postCountByUser:=make(map[string]int)
 	fmt.Println(files[100].UploaderId)
 	for _, v := range files{
 		if strings.HasPrefix(v.Mime, "audio") {
-			if _, ok := postCountByUser[v.UploaderId]; ok {
-				postCountByUser[v.UploaderId]++
+			if _, ok := postCountByUser[*v.UploaderId]; ok {
+				postCountByUser[*v.UploaderId]++
 			}else {
-				postCountByUser[v.UploaderId]=1
+				postCountByUser[*v.UploaderId]=1
 			}
 		}
 	}
 	//idToName:=make(map[*string]string)
 	composers:=make([]*domain.Composer,0,len(users))
 	for _,user:=range users{
-		if val,ok:=postCountByUser[&user.Id];ok&&val>0 {
+		if val,ok:=postCountByUser[user.Id];ok&&val>0 {
 			composers=append(composers,&domain.Composer{
 				ID:        user.Id,
 				Name:      user.Name,
