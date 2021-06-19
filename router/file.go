@@ -35,7 +35,7 @@ func getRandomFileHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
