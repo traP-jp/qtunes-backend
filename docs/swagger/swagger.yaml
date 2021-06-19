@@ -347,7 +347,9 @@ components:
           description: 作成日時
       required:
         - id
+        - title
         - composer_id
+        - composer_name
         - facorite_count
         - is_favorite_by_me
         - created_at
@@ -360,7 +362,7 @@ components:
           type: boolean
           description: お気に入りかどうか
       required:
-        - id_favorite
+        - favorite
     Composer:
       title: Composer
       type: object

@@ -19,6 +19,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
+
 	postCountByUser := make(map[string]int)
 	for i := 0; ; i += 200 {
 		files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
@@ -41,6 +42,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 			}
 		}
 	}
+
 	composers := make([]*domain.Composer, 0, len(users))
 	for _, user := range users {
 		if val, ok := postCountByUser[user.Id]; ok && val > 0 {
@@ -49,7 +51,6 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 				Name:      user.Name,
 				PostCount: val,
 			})
-
 		}
 	}
 	return composers, err

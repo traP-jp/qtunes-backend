@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// getUsers GET /users
+// getUsersHandler GET /users
 func getUsersHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	users, err := model.GetUsers(ctx)
@@ -20,18 +20,34 @@ func getUsersHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, users)
 }
 
+// getUserHandler GET /users/:userID
 func getUserHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	userID := c.Param("userID")
-
 	sess, err := session.Get("sessions", c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
-	res, err := model.GetUser(ctx, accessToken, userID)
+	user, err := model.GetUser(ctx, accessToken, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}
+
+	return echo.NewHTTPError(http.StatusOK, user)
+}
+
+func getUsersMeHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	res, err := model.GetUsersMe(ctx, accessToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
+	}
 	return echo.NewHTTPError(http.StatusOK, res)
+
 }
