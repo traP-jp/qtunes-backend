@@ -97,7 +97,6 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 }
 
 func GetComposerFiles(ctx context.Context, accessToken string, composerID string) ([]*domain.ComposerFile, error) {
-	//client,auth:=newClient(accessToken)
 	composer, _ := GetComposer(ctx, accessToken, composerID)
 	files, err := GetFiles(ctx, accessToken, composerID)
 	if err != nil {
