@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/hackathon-21-spring-02/back-end/domain"
 )
 
 type User struct {
 	ID        string    `json:"id"  db:"id"`
 	Name      string    `json:"name"  db:"name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	CreatedAt time.Time `json:"-" db:"created_at"`
 }
 
 func GetUsers(ctx context.Context) ([]*User, error) {
@@ -33,8 +31,8 @@ func CreateUser(ctx context.Context, user *User) error {
 	return nil
 }
 
-func GetUser(ctx context.Context, accessToken string, userID string) ([]*domain.UserIdInfo, error) {
-	userId := []*domain.UserIdInfo{}
+func GetUser(ctx context.Context, accessToken string, userID string) ([]*User, error) {
+	userId := []*User{}
 	err := db.SelectContext(ctx, &userId, "SELECT id,name FROM users WHERE id= ?", userID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get users: %w", err)
