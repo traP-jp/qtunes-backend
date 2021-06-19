@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -56,7 +57,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 		if strings.HasPrefix(v.Mime, "audio") {
 			audioFiles = append(audioFiles, &domain.File{
 				ID:             v.Id,
-				Title:          v.Name,
+				Title:          format(v.Name),
 				ComposerID:     *v.UploaderId,
 				ComposerName:   userIdMap[*v.UploaderId],
 				FavoriteCount:  favoriteCounts[v.Id],
@@ -99,7 +100,7 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 		}
 		if strings.HasPrefix(f.Mime, "audio") {
 			audioFile.ID = f.Id
-			audioFile.Title = f.Name
+			audioFile.Title = format(f.Name)
 			audioFile.ComposerName = user.Name
 			audioFile.ComposerID = *f.UploaderId
 			audioFile.CreatedAt = f.CreatedAt
@@ -159,7 +160,7 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 
 	audioFile := &domain.File{
 		ID:             file.Id,
-		Title:          file.Name,
+		Title:          format(file.Name),
 		ComposerID:     *file.UploaderId,
 		ComposerName:   user.Name,
 		FavoriteCount:  favoriteCount.Count,
@@ -204,4 +205,10 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 	}
 
 	return nil
+}
+
+// 拡張子を除く
+func format(str string) string {
+	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
+	return rep.ReplaceAllString(str, "")
 }
