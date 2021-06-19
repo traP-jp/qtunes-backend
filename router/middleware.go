@@ -18,7 +18,7 @@ func userAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		accessToken := sess.Values["accessToken"]
 		if accessToken == nil {
-			return c.NoContent(http.StatusUnauthorized)
+			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 		c.Set("accessToken", accessToken)
 

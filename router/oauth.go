@@ -38,18 +38,18 @@ type PkceParams struct {
 func callbackHandler(c echo.Context) error {
 	code := c.QueryParam("code")
 	if len(code) == 0 {
-		return c.String(http.StatusBadRequest, "Code Is Null")
+		return echo.NewHTTPError(http.StatusBadRequest, "Code Is Null")
 	}
 
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
 
 	codeVerifier := sess.Values["codeVerifier"].(string)
 	res, err := getAccessToken(code, codeVerifier)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get access token: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get access token: %w", err))
 	}
 	sess.Options = &sessions.Options{
 		Path:     "/",
@@ -60,7 +60,7 @@ func callbackHandler(c echo.Context) error {
 	sess.Values["refreshToken"] = res.RefreshToken
 	user, err := getMe(res.AccessToken)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Me: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Me: %w", err))
 	}
 
 	err = model.CreateUser(c.Request().Context(), user)
@@ -79,10 +79,10 @@ func callbackHandler(c echo.Context) error {
 
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to save session: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to save session: %w", err))
 	}
 
-	return c.NoContent(http.StatusOK)
+	return echo.NewHTTPError(http.StatusOK)
 }
 
 // postLogoutHandler POST /oauth/logoutのハンドラー
@@ -96,17 +96,17 @@ func postLogoutHandler(c echo.Context) error {
 	reqBody := strings.NewReader(form.Encode())
 	req, err := http.NewRequest("POST", path.String(), reqBody)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Making HTTP Request:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Making HTTP Request:%w", err))
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	httpClient := http.DefaultClient
 	res, err := httpClient.Do(req)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In HTTP Request:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In HTTP Request:%w", err))
 	}
 	if res.StatusCode != 200 {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Access Token:(Status:%d %s)", res.StatusCode, res.Status).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Access Token:(Status:%d %s)", res.StatusCode, res.Status))
 	}
 
 	err = s.RevokeSession(c)
@@ -114,14 +114,14 @@ func postLogoutHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to revoke session: %w", err))
 	}
 
-	return c.NoContent(http.StatusOK)
+	return echo.NewHTTPError(http.StatusOK)
 }
 
 // postGenerateCodeHandler POST /oauth/generate/codeのハンドラー
 func postGenerateCodeHandler(c echo.Context) error {
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
 
 	pkceParams := PkceParams{}
@@ -132,7 +132,7 @@ func postGenerateCodeHandler(c echo.Context) error {
 
 	bytesCodeVerifier, err := randBytes(43)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to generate random bytes: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to generate random bytes: %w", err))
 	}
 
 	codeVerifier := string(bytesCodeVerifier)
