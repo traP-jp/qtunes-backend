@@ -126,6 +126,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/File'
+  /files/random:
+    get:
+      tags:
+        - file
+      summary: ファイル詳細情報をランダムに1つ取得
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        404:
+          description: Not Found
+      operationId: getRandomFile
   /files/{fileId}:
     parameters:
       - $ref: '#/components/parameters/fileId'

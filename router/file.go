@@ -30,6 +30,23 @@ func getFilesHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, files)
 }
 
+// getRandomFileHandler GET /files/random
+func getRandomFileHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
+	files, err := model.GetRandomFile(ctx, accessToken, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, files)
+}
+
 // getFileHandler GET /files/:fileID
 func getFileHandler(c echo.Context) error {
 	ctx := c.Request().Context()
