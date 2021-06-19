@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/antihax/optional"
 	"github.com/hackathon-21-spring-02/back-end/domain"
@@ -68,31 +69,16 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 }
 
 func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
-	path := *baseURL
-	path.Path += "/files"
-	req, err := http.NewRequest("GET", path.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	params := req.URL.Query()
-	params.Add("channelId", "8bd9e07a-2c6a-49e6-9961-4f88e83b4918") // TODO:あとでSoundChannelIDに変える
-	params.Add("limit", "200")
-	req.URL.RawQuery = params.Encode()
-
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-	httpClient := http.DefaultClient
-	res, err := httpClient.Do(req)
+	client, auth := newClient(accessToken)
+	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
+		ChannelId: optional.NewInterface(SoundChannelId),
+		Limit:     optional.NewInt32(200),
+	})
 	if err != nil {
 		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
-
-	var files []*FileInfo
-	err = json.NewDecoder(res.Body).Decode(&files)
-	if err != nil {
-		return nil, err
 	}
 
 	audioFile := &domain.File{}
@@ -104,8 +90,8 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 		}
 		f := files[r]
 		if strings.HasPrefix(f.Mime, "audio") {
-			audioFile.ID = f.ID
-			audioFile.ComposerID = f.UpLoaderId
+			audioFile.ID = f.Id
+			audioFile.ComposerID = *f.UploaderId
 			audioFile.CreatedAt = f.CreatedAt
 			break
 		}
