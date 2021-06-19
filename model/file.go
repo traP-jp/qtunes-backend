@@ -89,8 +89,11 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 			return nil, fmt.Errorf("failed to generate random integer: %w", err)
 		}
 		f := files[r]
+		composer,_:=GetComposer(ctx,accessToken,*f.UploaderId)
 		if strings.HasPrefix(f.Mime, "audio") {
 			audioFile.ID = f.Id
+			audioFile.Title=f.Name
+			audioFile.ComposerName=composer.Name
 			audioFile.ComposerID = *f.UploaderId
 			audioFile.CreatedAt = f.CreatedAt
 			break
