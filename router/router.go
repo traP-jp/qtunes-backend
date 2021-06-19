@@ -67,8 +67,9 @@ func SetRouting(sess sess.Session, env string) {
 	}
 	proxyConfig.Rewrite = map[string]string{
 		"/users*":   "/",
-		"/files":    "/",
-		"/favorite": "/",
+		"/files*":    "/",
+		"/favorite*": "/",
+		"/callback*": "/",
 	}
 
 	e.Use(middleware.ProxyWithConfig(proxyConfig))
@@ -89,6 +90,12 @@ func SetRouting(sess sess.Session, env string) {
 		{
 			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
 			apiUsers.GET("/:userID", getUserHandler, userAuthMiddleware)
+		}
+
+		//作曲者
+		apiComposers:=api.Group("/composers")
+		{
+			apiComposers.GET("",getComposersHandler,userAuthMiddleware)
 		}
 
 		apiFiles := api.Group("/files")
