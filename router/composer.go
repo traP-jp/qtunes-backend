@@ -29,7 +29,7 @@ func getComposerHandler(c echo.Context) error {
 	composerID := c.Param("composerID")
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	res, err := model.GetComposer(ctx, accessToken, composerID)
