@@ -9,12 +9,12 @@ import (
 type User struct {
 	ID        string    `json:"id"  db:"id"`
 	Name      string    `json:"name"  db:"name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	CreatedAt time.Time `json:"-" db:"created_at"`
 }
 
 func GetUsers(ctx context.Context) ([]*User, error) {
 	users := []*User{}
-	err := db.SelectContext(ctx, &users, "SELECT * FROM users")
+	err := db.SelectContext(ctx, &users, "SELECT id, name FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get users: %w", err)
 	}
@@ -29,4 +29,14 @@ func CreateUser(ctx context.Context, user *User) error {
 	}
 
 	return nil
+}
+
+func GetUser(ctx context.Context, accessToken string, userID string) (*User, error) {
+	var user User
+	err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = ? LIMIT 1", userID)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get user: %w", err)
+	}
+
+	return &user, nil
 }

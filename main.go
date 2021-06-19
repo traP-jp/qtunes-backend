@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
 	"github.com/hackathon-21-spring-02/back-end/router"
@@ -22,5 +23,7 @@ func main() {
 		panic(fmt.Errorf("Session Error: %w", err))
 	}
 
-	router.SetRouting(sess)
+	env := os.Getenv("ENV")
+
+	router.SetRouting(sess, env)
 }
