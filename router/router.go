@@ -66,7 +66,7 @@ func SetRouting(sess sess.Session) {
 		return nil
 	}
 	proxyConfig.Rewrite = map[string]string{
-		"/users*": "/",
+		"/users*":   "/",
 		"/files":    "/",
 		"/favorite": "/",
 	}
