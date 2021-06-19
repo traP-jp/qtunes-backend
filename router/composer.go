@@ -9,17 +9,17 @@ import (
 )
 
 func getComposersHandler(c echo.Context) error {
-	ctx:=c.Request().Context()
-	sess,err:=session.Get("sessions",c)
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError,fmt.Errorf("Failed in Getting Session:%w",err).Error())
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err).Error())
 	}
 
-	accessToken:=sess.Values["accessToken"].(string)
-	composers,err:=model.GetComposers(ctx,accessToken)
+	accessToken := sess.Values["accessToken"].(string)
+	composers, err := model.GetComposers(ctx, accessToken)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return echo.NewHTTPError(http.StatusOK,composers)
+	return echo.NewHTTPError(http.StatusOK, composers)
 }
