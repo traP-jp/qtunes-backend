@@ -4,8 +4,8 @@ info:
   description: spring hackathon
   version: 1.0.0
 servers:
-  - url: 'http://localhost:3000/api'
-  - url: 'http://main.back-end.hackathon21_spring_02.trap.show/api'
+  - url: http://localhost:3000/api
+  - url: http://main.back-end.hackathon21_spring_02.trap.show/api
 
 tags:
 - name: user
@@ -28,7 +28,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-  '/users/{userId}':
+  /users/{userId}:
     parameters:
       - $ref: '#/components/parameters/userId'
     get:
@@ -75,7 +75,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Composer'
-  '/composers/{composerId}':
+  /composers/{composerId}:
     parameters:
       - $ref: '#/components/parameters/composerId'
     get:
@@ -92,7 +92,7 @@ paths:
         404:
           description: Not Found
       operationId: getComposer
-  '/composers/{composerId}/files':
+  /composers/{composerId}/files:
     parameters:
       - $ref: '#/components/parameters/composerId'
     get:
@@ -105,7 +105,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
         404:
           description: Not Found
       operationId: getComposerFiles
@@ -190,12 +192,10 @@ paths:
       responses:
         200:
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/File'
         404:
           description: Not Found
+        422:
+          description: Unprocessable Entity
       operationId: putFileFavorite
   /oauth/callback:
     parameters:
@@ -324,10 +324,17 @@ components:
           type: string
           format: uuid
           description: ファイルUUID
+        title:
+          type: string
+          description: ファイルのタイトル
         composer_id:
           type: string
           format: uuid
           description: ファイル投稿者UUID
+        composer_name:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+          description: ファイル投稿者名
         facorite_count:
           type: integer
           description: お気に入り数
