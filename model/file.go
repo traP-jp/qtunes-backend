@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -106,17 +107,17 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 	return audioFile, nil
 }
 
-func GetFileThumbnail(ctx context.Context, accessToken string, fileID string) (*http.Response, error) {
+func GetFileThumbnail(ctx context.Context, accessToken string, fileID string) (*os.File, *http.Response, error) {
 	client, auth := newClient(accessToken)
-	_, res, err := client.FileApi.GetThumbnailImage(auth, fileID)
+	thumbnail, res, err := client.FileApi.GetThumbnailImage(auth, fileID)
 	if err != nil {
-		return nil, err
+		return nil, res, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		return nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	return res, nil
+	return thumbnail, res, nil
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*http.Response, error) {
@@ -127,13 +128,6 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*h
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, err
 	}
 
 	return res, nil
