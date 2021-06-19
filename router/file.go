@@ -103,10 +103,10 @@ func getFileDownloadHandler(c echo.Context) error {
 	}
 	accessToken := sess.Values["accessToken"].(string)
 
-	res, err := model.GetFileDownload(ctx, fileID, accessToken)
+	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}
 
-	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), res.Body)
+	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
 }

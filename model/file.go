@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -160,24 +161,17 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 	return audioFile, nil
 }
 
-func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*http.Response, error) {
+func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
 	client, auth := newClient(accessToken)
-	_, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
+	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		return nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, err
-	}
-
-	return res, nil
+	return file, res, nil
 }
 
 func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {
