@@ -309,10 +309,17 @@ components:
           type: string
           format: uuid
           description: ファイルUUID
+        title:
+          type: string
+          description: ファイルのタイトル
         composer_id:
           type: string
           format: uuid
           description: ファイル投稿者UUID
+        composer_name:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+          description: ファイル投稿者名
         facorite_count:
           type: integer
           description: お気に入り数
