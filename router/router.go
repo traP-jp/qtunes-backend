@@ -39,7 +39,7 @@ func SetRouting(sess sess.Session, env string) {
 	e.Use(middleware.Recover())
 
 	proxyConfig := middleware.DefaultProxyConfig
-	clientURL, err := url.Parse("https://main.front-end.hackathon21_spring_02.trap.show/")
+	clientURL, err := url.Parse("http://main.front-end.hackathon21_spring_02.trap.show/")
 	if err != nil {
 		panic(err)
 	}
