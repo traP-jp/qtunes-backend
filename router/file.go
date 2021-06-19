@@ -18,7 +18,7 @@ func getFilesHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
@@ -53,7 +53,7 @@ func getFileHandler(c echo.Context) error {
 	fileID := c.Param("fileID")
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
@@ -99,13 +99,13 @@ func getFileDownloadHandler(c echo.Context) error {
 
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get session: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get session: %w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
 
 	res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}
 
 	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), res.Body)
