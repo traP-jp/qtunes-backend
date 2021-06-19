@@ -53,12 +53,12 @@ func getFileThumbnailHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
-	thumbnail, res, err := model.GetFileThumbnail(ctx, accessToken, fileID)
+	res, err := model.GetFileThumbnail(ctx, accessToken, fileID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), thumbnail)
+	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), res.Body)
 }
 
 // getFileDownloadHandler GET /files/:fileID/download
