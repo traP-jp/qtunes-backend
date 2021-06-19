@@ -3,7 +3,9 @@ package router
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	sess "github.com/hackathon-21-spring-02/back-end/session"
 	"github.com/labstack/echo-contrib/session"
@@ -27,7 +29,7 @@ func init() {
 	}
 }
 
-func SetRouting(sess sess.Session) {
+func SetRouting(sess sess.Session, env string) {
 	s = sess
 
 	e := echo.New()
@@ -35,6 +37,41 @@ func SetRouting(sess sess.Session) {
 	e.Use(session.Middleware(sess.Store()))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	proxyConfig := middleware.DefaultProxyConfig
+	clientURL, err := url.Parse("https://main.front-end.hackathon21_spring_02.trap.show/front-end/")
+	if err != nil {
+		panic(err)
+	}
+	proxyConfig.Balancer = middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
+		{
+			URL: clientURL,
+		},
+	})
+
+	// if env == "development" || env == "mock" {
+	// 	e.Pre(middleware.Rewrite(map[string]string{
+	// 		"/back-end/*": "/$1",
+	// 	}))
+	// }
+	proxyConfig.Skipper = func(c echo.Context) bool {
+		if strings.HasPrefix(c.Path(), "/api/") || strings.HasPrefix(c.Path(), "/openapi/") {
+			return true
+		}
+		c.Request().Host = "main.front-end.hackathon21_spring_02.trap.show"
+		return false
+	}
+	proxyConfig.ModifyResponse = func(res *http.Response) error {
+		res.Header.Set("Cache-Control", "max-age=3600")
+		return nil
+	}
+	proxyConfig.Rewrite = map[string]string{
+		"/users*":   "/",
+		"/files":    "/",
+		"/favorite": "/",
+	}
+
+	e.Use(middleware.ProxyWithConfig(proxyConfig))
 
 	e.Static("/openapi", "docs/swagger")
 
@@ -51,6 +88,7 @@ func SetRouting(sess sess.Session) {
 		apiUsers := api.Group("/users")
 		{
 			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
+			apiUsers.GET("/:userID", getUserHandler, userAuthMiddleware)
 		}
 
 		//作曲者
@@ -79,7 +117,7 @@ func SetRouting(sess sess.Session) {
 	if port == "" {
 		port = ":3000"
 	}
-	err := e.Start(port)
+	err = e.Start(port)
 	if err != nil {
 		panic(err)
 	}
