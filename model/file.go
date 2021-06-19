@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -104,6 +105,19 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 	}
 
 	return audioFile, nil
+}
+
+func GetFileThumbnail(ctx context.Context, accessToken string, fileID string) (*os.File, error) {
+	client, auth := newClient(accessToken)
+	png, res, err := client.FileApi.GetThumbnailImage(auth, fileID)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+
+	return png, nil
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*http.Response, error) {

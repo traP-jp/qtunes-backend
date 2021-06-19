@@ -159,6 +159,24 @@ paths:
         404:
           description: Not Found
       operationId: getFileDownload
+  /files/{fileId}/thumbnail:
+    parameters:
+      - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+        - file
+      summary: 指定したファイルのサムネイルの取得
+      responses:
+        200:
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Not Found
+      operationId: getFileThumbnail
   /files/{fileId}/favorite:
     parameters:
       - $ref: '#/components/parameters/fileId'

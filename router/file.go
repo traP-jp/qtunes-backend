@@ -44,6 +44,23 @@ func getFileHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, file)
 }
 
+// getFileThumbnailHanler GET /files/:fileID/thumbnail
+func getFileThumbnailHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	fileID := c.Param("FileID")
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	thumbnail, err := model.GetFileThumbnail(ctx, accessToken, fileID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, thumbnail)
+}
+
 // getFileDownloadHandler GET /files/:fileID/download
 func getFileDownloadHandler(c echo.Context) error {
 	ctx := c.Request().Context()
