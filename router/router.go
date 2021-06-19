@@ -93,6 +93,7 @@ func SetRouting(sess sess.Session, env string) {
 		apiFiles := api.Group("/files")
 		{
 			apiFiles.GET("", getFilesHandler, userAuthMiddleware)
+			apiFiles.GET("/random", getRandomFileHandler, userAuthMiddleware)
 			apiFiles.GET("/:fileID", getFileHandler, userAuthMiddleware)
 			apiFiles.GET("/:fileID/download", getFileDownloadHandler, userAuthMiddleware)
 		}
