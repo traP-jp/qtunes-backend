@@ -104,20 +104,25 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		return nil, err
 	}
 
-	getMyfavorites,_:=getMyFavorites(ctx,composerID)
+	getMyFavorites,_:=getMyFavorites(ctx,composerID)
 
 	composerFiles:=make([]*domain.ComposerFile,0,len(files))
 	for _,file:=range files{
-		val,_:=getMyfavorites[file.ID]
-		composerFiles=append(composerFiles,&domain.ComposerFile{
-			ID:             file.ID,
-			Title:          file.Title,
-			ComposerID:     composerID,
-			ComposerName:   composer.Name,
-			FavoriteCount:  file.FavoriteCount,
-			IsFavoriteByMe: val,
-			CreatedAt:      file.CreatedAt,
-		})
+		_,ok:=getMyFavorites[file.ID]
+		if file.ComposerID == composerID {
+			composerFiles=append(composerFiles,&domain.ComposerFile{
+				ID:             file.ID,
+				Title:          file.Title,
+				ComposerID:     &composerID,
+				ComposerName:   composer.Name,
+				FavoriteCount:  file.FavoriteCount,
+				IsFavoriteByMe: ok,
+				CreatedAt:      file.CreatedAt,
+			})
+		}
+
+
+
 	}
 	return composerFiles,err
 }

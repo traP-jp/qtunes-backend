@@ -10,7 +10,7 @@ type Composer struct {
 type ComposerFile struct {
 	ID             string    `json:"id"`
 	Title          string    `json:"title"`
-	ComposerID     string    `json:"composer_id"`
+	ComposerID     *string    `json:"composer_id"`
 	ComposerName   string    `json:"composer_name"`
 	FavoriteCount  uint32     `json:"favorite_count"`
 	IsFavoriteByMe bool      `json:"is_favorite_by_me"`
