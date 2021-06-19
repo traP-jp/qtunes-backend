@@ -79,6 +79,7 @@ func insertFileFavorite(ctx context.Context, userID string, composerID string, f
 	if err == nil { // 既にfavoriteしている
 		return DBErrs["NoChange"]
 	}
+
 	_, err = db.ExecContext(ctx, "INSERT INTO favorites (user_id, composer_id, sound_id) VALUES (?, ?, ?)", userID, composerID, fileID)
 	if err != nil {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)

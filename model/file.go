@@ -22,7 +22,6 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 	if err != nil {
 		return nil, err
 	}
-
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
@@ -70,13 +69,11 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 }
 
 func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
-
 	client, auth := newClient(accessToken)
 	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
 		ChannelId: optional.NewInterface(SoundChannelId),
 		Limit:     optional.NewInt32(200),
 	})
-
 	if err != nil {
 		return nil, err
 	}
