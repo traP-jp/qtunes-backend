@@ -12,7 +12,7 @@ import (
 
 func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
 	client, auth := newClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth,&traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
+	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
 	}
@@ -20,11 +20,11 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 	postCountByUser := make(map[string]int)
-	for i:=0;;i+=200{
+	for i := 0; ; i += 200 {
 		files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
 			ChannelId: optional.NewInterface(SoundChannelId),
 			Limit:     optional.NewInt32(200),
-			Offset: 	optional.NewInt32(int32(i)),
+			Offset:    optional.NewInt32(int32(i)),
 		})
 		if err != nil {
 			return nil, err
@@ -32,7 +32,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		if res.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 		}
-		if len(files)==0 {
+		if len(files) == 0 {
 			break
 		}
 		for _, v := range files {
