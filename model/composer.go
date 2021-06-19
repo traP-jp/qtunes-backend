@@ -57,7 +57,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 }
 func GetComposer(ctx context.Context, accessToken string, composerID string) (*domain.Composer, error) {
 	client, auth := newClient(accessToken)
-	user, res, err := client.UserApi.GetUser(auth,composerID)
+	user, res, err := client.UserApi.GetUser(auth, composerID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +88,10 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 		}
 	}
 
-	composer:=&domain.Composer{
+	composer := &domain.Composer{
 		ID:        composerID,
 		Name:      user.Name,
 		PostCount: postCountByUser[user.Id],
 	}
-	return composer,err
+	return composer, err
 }
