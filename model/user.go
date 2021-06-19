@@ -14,7 +14,7 @@ type User struct {
 
 func GetUsers(ctx context.Context) ([]*User, error) {
 	users := []*User{}
-	err := db.SelectContext(ctx, &users, "SELECT * FROM users")
+	err := db.SelectContext(ctx, &users, "SELECT id, name FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get users: %w", err)
 	}
@@ -31,12 +31,12 @@ func CreateUser(ctx context.Context, user *User) error {
 	return nil
 }
 
-func GetUser(ctx context.Context, accessToken string, userID string) ([]*User, error) {
-	userId := []*User{}
-	err := db.SelectContext(ctx, &userId, "SELECT id,name FROM users WHERE id= ?", userID)
+func GetUser(ctx context.Context, accessToken string, userID string) (*User, error) {
+	var user User
+	err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = ? LIMIT 1", userID)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get users: %w", err)
+		return nil, fmt.Errorf("Failed to get user: %w", err)
 	}
 
-	return userId, nil
+	return &user, nil
 }
