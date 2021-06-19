@@ -111,6 +111,23 @@ paths:
         404:
           description: Not Found
       operationId: getComposerFiles
+  /composers/name/{composerName}:
+    parameters:
+      - $ref: '#/components/parameters/composerName'
+    get:
+      tags:
+        - composer
+      summary: 投稿者名から投稿者情報を取得
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Composer'
+        404:
+          description: Not Found
+      operationId: getComposerByName
   /files:
     get:
       tags:
@@ -263,6 +280,14 @@ components:
       schema:
         type: string
         format: uuid
+    composerName:
+      name: composerName
+      description: 投稿者名
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9_-]{1,32}$'
     fileId:
       name: fileId
       description: ファイルUUID
