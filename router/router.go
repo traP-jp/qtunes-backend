@@ -29,7 +29,7 @@ func init() {
 	}
 }
 
-func SetRouting(sess sess.Session) {
+func SetRouting(sess sess.Session, env string) {
 	s = sess
 
 	e := echo.New()
@@ -49,11 +49,11 @@ func SetRouting(sess sess.Session) {
 		},
 	})
 
-	// if env == "development" || env == "mock" {
-	// 	e.Pre(middleware.Rewrite(map[string]string{
-	// 		"/customtheme-server/*": "/$1",
-	// 	}))
-	// }
+	if env == "development" || env == "mock" {
+		e.Pre(middleware.Rewrite(map[string]string{
+			"/back-end/*": "/$1",
+		}))
+	}
 	proxyConfig.Skipper = func(c echo.Context) bool {
 		if strings.HasPrefix(c.Path(), "/api/") || strings.HasPrefix(c.Path(), "/openapi/") {
 			return true
