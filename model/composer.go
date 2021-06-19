@@ -12,6 +12,14 @@ import (
 
 func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
 	client, auth := newClient(accessToken)
+	users, res, err := client.UserApi.GetUsers(auth, nil)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+
 	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
 		ChannelId: optional.NewInterface(SoundChannelId),
 		Limit:     optional.NewInt32(200),
@@ -23,22 +31,10 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	users, res, err := client.UserApi.GetUsers(auth, nil)
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
-
 	postCountByUser := make(map[string]int)
 	for _, v := range files {
 		if strings.HasPrefix(v.Mime, "audio") {
-			if _, ok := postCountByUser[*v.UploaderId]; ok {
-				postCountByUser[*v.UploaderId]++
-			} else {
-				postCountByUser[*v.UploaderId] = 1
-			}
+			postCountByUser[*v.UploaderId]++
 		}
 	}
 	composers := make([]*domain.Composer, 0, len(users))
