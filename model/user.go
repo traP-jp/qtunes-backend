@@ -12,6 +12,12 @@ type User struct {
 	CreatedAt time.Time `json:"-" db:"created_at"`
 }
 
+type UserMe struct {
+	ID            string   `json:"id"  db:"id"`
+	Name          string   `json:"name"  db:"name"`
+	FavoriteFiles []string `json:"favoriteFiles" db:"sound_id"`
+}
+
 func GetUsers(ctx context.Context) ([]*User, error) {
 	users := []*User{}
 	err := db.SelectContext(ctx, &users, "SELECT id, name FROM users")
@@ -39,4 +45,14 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 	}
 
 	return &user, nil
+}
+
+func GetUserMe(ctx context.Context, accessToken string) (*UserMe, error) {
+	var userMe UserMe
+	err := db.GetContext(ctx, &userMe, "SELECT id, name, sound_id FROM users FULL JOIN favorites  LIMIT 1")
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get userMe: %w", err)
+	}
+
+	return &userMe, nil
 }

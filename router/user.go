@@ -35,3 +35,18 @@ func getUserHandler(c echo.Context) error {
 	}
 	return echo.NewHTTPError(http.StatusOK, res)
 }
+
+func getUserMeHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	res, err := model.GetUserMe(ctx, accessToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
+	}
+	return echo.NewHTTPError(http.StatusOK, res)
+
+}
