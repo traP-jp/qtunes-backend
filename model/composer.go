@@ -23,7 +23,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	users,res,err:=client.UserApi.GetUsers(auth,nil)
+	users, res, err := client.UserApi.GetUsers(auth, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -31,22 +31,20 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser:=make(map[string]int)
-	fmt.Println(files[100].UploaderId)
-	for _, v := range files{
+	postCountByUser := make(map[string]int)
+	for _, v := range files {
 		if strings.HasPrefix(v.Mime, "audio") {
 			if _, ok := postCountByUser[*v.UploaderId]; ok {
 				postCountByUser[*v.UploaderId]++
-			}else {
-				postCountByUser[*v.UploaderId]=1
+			} else {
+				postCountByUser[*v.UploaderId] = 1
 			}
 		}
 	}
-	//idToName:=make(map[*string]string)
-	composers:=make([]*domain.Composer,0,len(users))
-	for _,user:=range users{
-		if val,ok:=postCountByUser[user.Id];ok&&val>0 {
-			composers=append(composers,&domain.Composer{
+	composers := make([]*domain.Composer, 0, len(users))
+	for _, user := range users {
+		if val, ok := postCountByUser[user.Id]; ok && val > 0 {
+			composers = append(composers, &domain.Composer{
 				ID:        user.Id,
 				Name:      user.Name,
 				PostCount: val,
@@ -54,6 +52,5 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 
 		}
 	}
-	fmt.Println(users[0].Name)
-	return composers,err
+	return composers, err
 }
