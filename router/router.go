@@ -39,7 +39,7 @@ func SetRouting(sess sess.Session, env string) {
 	e.Use(middleware.Recover())
 
 	proxyConfig := middleware.DefaultProxyConfig
-	clientURL, err := url.Parse("https://hackathon21_spring_02.trap.show/front-end/")
+	clientURL, err := url.Parse("http://main.front-end.hackathon21_spring_02.trap.show/")
 	if err != nil {
 		panic(err)
 	}
@@ -49,16 +49,16 @@ func SetRouting(sess sess.Session, env string) {
 		},
 	})
 
-	if env == "development" || env == "mock" {
-		e.Pre(middleware.Rewrite(map[string]string{
-			"/back-end/*": "/$1",
-		}))
-	}
+	// if env == "development" || env == "mock" {
+	// 	e.Pre(middleware.Rewrite(map[string]string{
+	// 		"/back-end/*": "/$1",
+	// 	}))
+	// }
 	proxyConfig.Skipper = func(c echo.Context) bool {
 		if strings.HasPrefix(c.Path(), "/api/") || strings.HasPrefix(c.Path(), "/openapi/") {
 			return true
 		}
-		c.Request().Host = "hackathon21_spring_02.trap.show"
+		c.Request().Host = "main.front-end.hackathon21_spring_02.trap.show"
 		return false
 	}
 	proxyConfig.ModifyResponse = func(res *http.Response) error {
@@ -67,8 +67,9 @@ func SetRouting(sess sess.Session, env string) {
 	}
 	proxyConfig.Rewrite = map[string]string{
 		"/users*":   "/",
-		"/files":    "/",
-		"/favorite": "/",
+		"/files*":    "/",
+		"/favorite*": "/",
+		"/callback*": "/",
 	}
 
 	e.Use(middleware.ProxyWithConfig(proxyConfig))
@@ -92,12 +93,19 @@ func SetRouting(sess sess.Session, env string) {
 			apiUsers.GET("/me", getUsersMeHandler, userAuthMiddleware)
 		}
 
+		//作曲者
+		apiComposers:=api.Group("/composers")
+		{
+			apiComposers.GET("",getComposersHandler,userAuthMiddleware)
+		}
+
 		apiFiles := api.Group("/files")
 		{
 			apiFiles.GET("", getFilesHandler, userAuthMiddleware)
 			apiFiles.GET("/random", getRandomFileHandler, userAuthMiddleware)
 			apiFiles.GET("/:fileID", getFileHandler, userAuthMiddleware)
 			apiFiles.GET("/:fileID/download", getFileDownloadHandler, userAuthMiddleware)
+			apiFiles.PUT("/:fileID/favorite", putFileFavoriteHandler, userAuthMiddleware)
 		}
 
 		// OAuth関連
