@@ -37,6 +37,7 @@ func getUserHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, user)
 }
 
+// getUsersMeHandler GET /users/me
 func getUsersMeHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
