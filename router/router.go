@@ -39,7 +39,7 @@ func SetRouting(sess sess.Session, env string) {
 	e.Use(middleware.Recover())
 
 	proxyConfig := middleware.DefaultProxyConfig
-	clientURL, err := url.Parse("https://hackathon21_spring_02.trap.show/front-end/")
+	clientURL, err := url.Parse("https://main.front-end.hackathon21_spring_02.trap.show/front-end/")
 	if err != nil {
 		panic(err)
 	}
@@ -49,16 +49,16 @@ func SetRouting(sess sess.Session, env string) {
 		},
 	})
 
-	if env == "development" || env == "mock" {
-		e.Pre(middleware.Rewrite(map[string]string{
-			"/back-end/*": "/$1",
-		}))
-	}
+	// if env == "development" || env == "mock" {
+	// 	e.Pre(middleware.Rewrite(map[string]string{
+	// 		"/back-end/*": "/$1",
+	// 	}))
+	// }
 	proxyConfig.Skipper = func(c echo.Context) bool {
 		if strings.HasPrefix(c.Path(), "/api/") || strings.HasPrefix(c.Path(), "/openapi/") {
 			return true
 		}
-		c.Request().Host = "hackathon21_spring_02.trap.show"
+		c.Request().Host = "main.front-end.hackathon21_spring_02.trap.show"
 		return false
 	}
 	proxyConfig.ModifyResponse = func(res *http.Response) error {
