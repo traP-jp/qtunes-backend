@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"fmt"
 	"time"
 )
@@ -48,11 +49,22 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 }
 
 func GetUsersMe(ctx context.Context, accessToken string) (*UsersMe, error) {
+
 	var usersMe UsersMe
-	err := db.GetContext(ctx, &usersMe, "SELECT id, name, sound_id FROM users FULL JOIN favorites  LIMIT 1")
-	if err != nil {
-		return nil, fmt.Errorf("Failed to get userMe: %w", err)
+	err1 := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users")
+	if err1 != nil {
+		return nil, fmt.Errorf("Failed to get usersMeId: %w", err1)
 	}
 
+	var usersMeFavorites []string
+	err2 := db.SelectContext(ctx, &usersMeFavorites, "SELECT sound_id FROM favorites")
+	if usersMeFavorites == nil {
+		usersMeFavorites = []string{}
+	}
+
+	if err2 != nil {
+		return nil, fmt.Errorf("Failed to get usersMeFavorites: %w", err2)
+	}
+	usersMe.FavoriteFiles = usersMeFavorites
 	return &usersMe, nil
 }
