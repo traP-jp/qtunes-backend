@@ -91,6 +91,7 @@ func SetRouting(sess sess.Session, env string) {
 			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
 			apiUsers.GET("/:userID", getUserHandler, userAuthMiddleware)
 			apiUsers.GET("/me", getUsersMeHandler, userAuthMiddleware)
+			apiUsers.GET("/me/favorites", getUsersMeFavoritesHandler, userAuthMiddleware)
 		}
 
 		//作曲者
@@ -98,7 +99,8 @@ func SetRouting(sess sess.Session, env string) {
 		{
 			apiComposers.GET("", getComposersHandler, userAuthMiddleware)
 			apiComposers.GET("/:composerID", getComposerHandler, userAuthMiddleware)
-			apiComposers.GET("/:composerID/files", getComposerFileHandler, userAuthMiddleware)
+			apiComposers.GET("/:composerID/files", getComposerFilesHandler, userAuthMiddleware)
+			apiComposers.GET("/name/:composerName", getComposerByNameHandler, userAuthMiddleware)
 		}
 
 		apiFiles := api.Group("/files")

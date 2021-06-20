@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 	"time"
+
+	"github.com/hackathon-21-spring-02/back-end/domain"
 )
 
 type User struct {
@@ -48,15 +50,15 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 	return &user, nil
 }
 
-func GetUsersMe(ctx context.Context, accessToken string) (*UsersMe, error) {
+func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*UsersMe, error) {
 	var usersMe UsersMe
-	err := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users")
+	err := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users WHERE id = ? LIMIT 1", myUserID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get your information: %w", err)
 	}
 
 	var usersMeFavorites []string
-	err = db.SelectContext(ctx, &usersMeFavorites, "SELECT sound_id FROM favorites")
+	err = db.SelectContext(ctx, &usersMeFavorites, "SELECT sound_id FROM favorites WHERE user_id = ?", myUserID)
 	if usersMeFavorites == nil {
 		usersMeFavorites = []string{}
 	}
@@ -68,4 +70,20 @@ func GetUsersMe(ctx context.Context, accessToken string) (*UsersMe, error) {
 	usersMe.FavoriteFiles = usersMeFavorites
 
 	return &usersMe, nil
+}
+
+func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
+	files, err := GetFiles(ctx, accessToken, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*domain.File, 0, len(files))
+	for _, v := range files {
+		if v.IsFavoriteByMe {
+			res = append(res, v)
+		}
+	}
+
+	return res, nil
 }
