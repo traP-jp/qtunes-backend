@@ -130,12 +130,9 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 
 func caluculateCount(accessToken string) (map[string]int, error) {
 	cnt := make(map[string]int)
-	files, res, err := getAllFiles(accessToken)
+	files, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
 	for _, v := range files {
@@ -145,33 +142,4 @@ func caluculateCount(accessToken string) (map[string]int, error) {
 	}
 
 	return cnt, nil
-}
-
-func getAllFiles(accessToken string) ([]traq.FileInfo, *http.Response, error) {
-	var (
-		files []traq.FileInfo
-		res   *http.Response
-	)
-
-	client, auth := newClient(accessToken)
-	for i := 0; ; i += 200 {
-		f, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-			ChannelId: optional.NewInterface(SoundChannelId),
-			Limit:     optional.NewInt32(200),
-			Offset:    optional.NewInt32(int32(i)),
-		})
-		if err != nil {
-			return nil, res, err
-		}
-		if res.StatusCode != http.StatusOK {
-			return nil, res, nil
-		}
-		if len(files) == 0 {
-			break
-		}
-
-		files = append(files, f...)
-	}
-
-	return files, res, nil
 }
