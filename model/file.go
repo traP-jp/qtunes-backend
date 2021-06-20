@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -56,7 +57,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 		if strings.HasPrefix(v.Mime, "audio") {
 			audioFiles = append(audioFiles, &domain.File{
 				ID:             v.Id,
-				Title:          v.Name,
+				Title:          format(v.Name),
 				ComposerID:     *v.UploaderId,
 				ComposerName:   userIdMap[*v.UploaderId],
 				FavoriteCount:  favoriteCounts[v.Id],
@@ -90,8 +91,17 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 			return nil, fmt.Errorf("failed to generate random integer: %w", err)
 		}
 		f := files[r]
+		user, res, err := client.UserApi.GetUser(auth, *f.UploaderId)
+		if err != nil {
+			return nil, err
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		}
 		if strings.HasPrefix(f.Mime, "audio") {
 			audioFile.ID = f.Id
+			audioFile.Title = format(f.Name)
+			audioFile.ComposerName = user.Name
 			audioFile.ComposerID = *f.UploaderId
 			audioFile.CreatedAt = f.CreatedAt
 			break
@@ -150,7 +160,7 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 
 	audioFile := &domain.File{
 		ID:             file.Id,
-		Title:          file.Name,
+		Title:          format(file.Name),
 		ComposerID:     *file.UploaderId,
 		ComposerName:   user.Name,
 		FavoriteCount:  favoriteCount.Count,
@@ -161,24 +171,17 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 	return audioFile, nil
 }
 
-func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*http.Response, error) {
+func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
 	client, auth := newClient(accessToken)
-	_, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
+	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		return nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, err
-	}
-
-	return res, nil
+	return file, res, nil
 }
 
 func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {

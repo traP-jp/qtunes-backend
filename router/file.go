@@ -39,12 +39,12 @@ func getRandomFileHandler(c echo.Context) error {
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	files, err := model.GetRandomFile(ctx, accessToken, userID)
+	file, err := model.GetRandomFile(ctx, accessToken, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return echo.NewHTTPError(http.StatusOK, files)
+	return echo.NewHTTPError(http.StatusOK, file)
 }
 
 // getFileHandler GET /files/:fileID
@@ -103,10 +103,10 @@ func getFileDownloadHandler(c echo.Context) error {
 	}
 	accessToken := sess.Values["accessToken"].(string)
 
-	res, err := model.GetFileDownload(ctx, fileID, accessToken)
+	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}
 
-	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), res.Body)
+	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
 }
