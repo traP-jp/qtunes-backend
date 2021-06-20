@@ -4,12 +4,20 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
+	"time"
 
 	"github.com/antihax/optional"
 	"github.com/hackathon-21-spring-02/back-end/domain"
 	"github.com/sapphi-red/go-traq"
 )
+
+// TODO: 変数名ちゃんと考える
+type composerInfo struct {
+	PostCount int
+	UpdatedAt time.Time
+}
 
 func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
 	client, auth := newClient(accessToken)
@@ -21,21 +29,27 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser, err := caluculateCount(accessToken)
+	info, err := getComposersInfo(accessToken)
 	if err != nil {
 		return nil, err
 	}
 
 	composers := make([]*domain.Composer, 0, len(users))
 	for _, user := range users {
-		if val, ok := postCountByUser[user.Id]; ok && val > 0 {
+		if val, ok := info[user.Id]; ok && val.PostCount > 0 {
 			composers = append(composers, &domain.Composer{
 				ID:        user.Id,
 				Name:      user.Name,
-				PostCount: val,
+				PostCount: val.PostCount,
+				UpdatedAt: val.UpdatedAt,
 			})
 		}
 	}
+
+	sort.Slice(composers, func(i, j int) bool {
+		return composers[i].UpdatedAt.After(composers[j].UpdatedAt)
+	})
+
 	return composers, err
 }
 
@@ -49,7 +63,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser, err := caluculateCount(accessToken)
+	postCountByUser, err := getComposersInfo(accessToken)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +71,8 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 	composer := &domain.Composer{
 		ID:        composerID,
 		Name:      user.Name,
-		PostCount: postCountByUser[user.Id],
+		PostCount: postCountByUser[user.Id].PostCount,
+		UpdatedAt: postCountByUser[user.Id].UpdatedAt,
 	}
 	return composer, err
 }
@@ -75,7 +90,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*d
 		return nil, fmt.Errorf("Invalid name")
 	}
 
-	postCountByUser, err := caluculateCount(accessToken)
+	postCountByUser, err := getComposersInfo(accessToken)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +99,8 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*d
 	composer := domain.Composer{
 		ID:        u.Id,
 		Name:      u.Name,
-		PostCount: postCountByUser[u.Id],
+		PostCount: postCountByUser[u.Id].PostCount,
+		UpdatedAt: postCountByUser[u.Id].UpdatedAt,
 	}
 
 	return &composer, nil
@@ -128,8 +144,9 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 	return composerFiles, nil
 }
 
-func caluculateCount(accessToken string) (map[string]int, error) {
-	cnt := make(map[string]int)
+// TODO: 関数名考える
+func getComposersInfo(accessToken string) (map[string]*composerInfo, error) {
+	info := make(map[string]*composerInfo)
 	files, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
@@ -137,9 +154,20 @@ func caluculateCount(accessToken string) (map[string]int, error) {
 
 	for _, v := range files {
 		if strings.HasPrefix(v.Mime, "audio") {
-			cnt[*v.UploaderId]++
+			if _, ok := info[*v.UploaderId]; !ok {
+				info[*v.UploaderId] = &composerInfo{
+					PostCount: 1,
+					UpdatedAt: v.CreatedAt,
+				}
+				continue
+			}
+
+			info[*v.UploaderId].PostCount++
+			if v.CreatedAt.After(info[*v.UploaderId].UpdatedAt) {
+				info[*v.UploaderId].UpdatedAt = v.CreatedAt
+			}
 		}
 	}
 
-	return cnt, nil
+	return info, nil
 }
