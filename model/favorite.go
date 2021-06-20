@@ -45,7 +45,7 @@ func getFavoriteCount(ctx context.Context, fileID string) (*FavoriteCount, error
 
 func getMyFavorites(ctx context.Context, userID string) (map[string]bool, error) {
 	var myFavorites []string
-	err := db.SelectContext(ctx, &myFavorites, "SELECT sound_id FROM favorites WHERE user_id = ?", userID)
+	err := db.SelectContext(ctx, &myFavorites, "SELECT sound_id FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get Your Favorite Files: %w", err)
 	}
