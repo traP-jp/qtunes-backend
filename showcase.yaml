@@ -10,8 +10,7 @@ http_proxy: 3000
 https: on
 
 cname:
-  - hackathon21_Spring_02.trap.show
-  - qtunes.trap.games
+  qtunes.trap.games
 
 use_mariadb: true
 
