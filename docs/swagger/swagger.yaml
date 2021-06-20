@@ -360,7 +360,7 @@ components:
           type: string
           pattern: '^[a-zA-Z0-9_-]{1,32}$'
           description: ファイル投稿者名
-        facorite_count:
+        favorite_count:
           type: integer
           description: お気に入り数
         is_favorite_by_me:
@@ -375,7 +375,7 @@ components:
         - title
         - composer_id
         - composer_name
-        - facorite_count
+        - favorite_count
         - is_favorite_by_me
         - created_at
     Favorite:

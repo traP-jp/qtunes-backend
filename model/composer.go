@@ -117,3 +117,41 @@ func caluculateCount(accessToken string) (map[string]int, error) {
 
 	return cnt, nil
 }
+
+func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*domain.File, error) {
+	client, auth := newClient(accessToken)
+	user, res, err := client.UserApi.GetUser(auth, composerID)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+
+	files, err := GetFiles(ctx, accessToken, composerID)
+	if err != nil {
+		return nil, err
+	}
+
+	getMyFavorites, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	composerFiles := make([]*domain.File, 0, len(files))
+	for _, file := range files {
+		if file.ComposerID == composerID {
+			composerFiles = append(composerFiles, &domain.File{
+				ID:             file.ID,
+				Title:          format(file.Title),
+				ComposerID:     composerID,
+				ComposerName:   user.Name,
+				FavoriteCount:  file.FavoriteCount,
+				IsFavoriteByMe: getMyFavorites[file.ID],
+				CreatedAt:      file.CreatedAt,
+			})
+		}
+	}
+
+	return composerFiles, nil
+}

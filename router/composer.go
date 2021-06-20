@@ -43,6 +43,24 @@ func getComposerHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, res)
 }
 
+// getComposerFilesHandler GET /composers/:composerID/files
+func getComposerFilesHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	composerID := c.Param("composerID")
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err))
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
+
+	res, err := model.GetComposerFiles(ctx, accessToken, composerID, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+	}
+	return echo.NewHTTPError(http.StatusOK, res)
+}
+
 // getComposerByNameHandler GET /composers/name/:composerID
 func getComposerByNameHandler(c echo.Context) error {
 	ctx := c.Request().Context()
