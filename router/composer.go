@@ -47,8 +47,9 @@ func getComposerFileHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err))
 	}
 	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
 
-	res, err := model.GetComposerFiles(ctx, accessToken, composerID)
+	res, err := model.GetComposerFiles(ctx, accessToken, composerID, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}

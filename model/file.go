@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -201,4 +202,10 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 	}
 
 	return nil
+}
+
+// 拡張子を除く
+func format(str string) string {
+	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
+	return rep.ReplaceAllString(str, "")
 }

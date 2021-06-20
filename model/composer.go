@@ -3,11 +3,12 @@ package model
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/antihax/optional"
 	"github.com/hackathon-21-spring-02/back-end/domain"
 	"github.com/sapphi-red/go-traq"
-	"net/http"
-	"strings"
 )
 
 func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
@@ -96,30 +97,40 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 	return composer, err
 }
 
-func GetComposerFiles(ctx context.Context, accessToken string, composerID string) ([]*domain.ComposerFile, error) {
-	composer, _ := GetComposer(ctx, accessToken, composerID)
+func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*domain.File, error) {
+	client, auth := newClient(accessToken)
+	user, res, err := client.UserApi.GetUser(auth, composerID)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+
 	files, err := GetFiles(ctx, accessToken, composerID)
 	if err != nil {
 		return nil, err
 	}
 
-	getMyFavorites, _ := getMyFavorites(ctx, composerID)
+	getMyFavorites, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
 
-	composerFiles := make([]*domain.ComposerFile, 0, len(files))
+	composerFiles := make([]*domain.File, 0, len(files))
 	for _, file := range files {
-		_, ok := getMyFavorites[file.ID]
 		if file.ComposerID == composerID {
-			composerFiles = append(composerFiles, &domain.ComposerFile{
+			composerFiles = append(composerFiles, &domain.File{
 				ID:             file.ID,
-				Title:          file.Title,
-				ComposerID:     &composerID,
-				ComposerName:   composer.Name,
+				Title:          format(file.Title),
+				ComposerID:     composerID,
+				ComposerName:   user.Name,
 				FavoriteCount:  file.FavoriteCount,
-				IsFavoriteByMe: ok,
+				IsFavoriteByMe: getMyFavorites[file.ID],
 				CreatedAt:      file.CreatedAt,
 			})
 		}
-
 	}
-	return composerFiles, err
+
+	return composerFiles, nil
 }
