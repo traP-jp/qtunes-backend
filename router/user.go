@@ -49,6 +49,23 @@ func getUsersMeHandler(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
 	}
-	return echo.NewHTTPError(http.StatusOK, res)
 
+	return echo.NewHTTPError(http.StatusOK, res)
+}
+
+// getUsersMeFavoritesHandler /users/me/favorites
+func getUsersMeFavoritesHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
+	}
+	accessToken := sess.Values["accessToken"].(string)
+	userID := sess.Values["id"].(string)
+	res, err := model.GetUsersMeFavorites(ctx, accessToken, userID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
+	}
+
+	return echo.NewHTTPError(http.StatusOK, res)
 }
