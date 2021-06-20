@@ -16,18 +16,12 @@ import (
 )
 
 func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
-	client, auth := newClient(accessToken)
-	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-		ChannelId: optional.NewInterface(SoundChannelId),
-		Limit:     optional.NewInt32(200),
-	})
+	files, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
 
+	client, auth := newClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
@@ -71,16 +65,9 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 }
 
 func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
-	client, auth := newClient(accessToken)
-	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-		ChannelId: optional.NewInterface(SoundChannelId),
-		Limit:     optional.NewInt32(200),
-	})
+	files, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
 	audioFile := &domain.File{}
@@ -91,6 +78,8 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 			return nil, fmt.Errorf("failed to generate random integer: %w", err)
 		}
 		f := files[r]
+
+		client, auth := newClient(accessToken)
 		user, res, err := client.UserApi.GetUser(auth, *f.UploaderId)
 		if err != nil {
 			return nil, err
@@ -211,4 +200,31 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 func format(str string) string {
 	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
 	return rep.ReplaceAllString(str, "")
+}
+
+// offsetを変えて全ファイルを取得
+func getAllFiles(accessToken string) ([]traq.FileInfo, error) {
+	var files []traq.FileInfo
+
+	client, auth := newClient(accessToken)
+	for i := 0; ; i += 200 {
+		f, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
+			ChannelId: optional.NewInterface(SoundChannelId),
+			Limit:     optional.NewInt32(200),
+			Offset:    optional.NewInt32(int32(i)),
+		})
+		if err != nil {
+			return nil, err
+		}
+		if res.StatusCode != http.StatusOK {
+			return nil, err
+		}
+		if len(f) == 0 {
+			break
+		}
+
+		files = append(files, f...)
+	}
+
+	return files, nil
 }
