@@ -16,11 +16,7 @@ import (
 )
 
 func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
-	client, auth := newClient(accessToken)
-	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-		ChannelId: optional.NewInterface(SoundChannelId),
-		Limit:     optional.NewInt32(200),
-	})
+	files, res, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +24,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
+	client, auth := newClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
@@ -71,11 +68,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 }
 
 func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
-	client, auth := newClient(accessToken)
-	files, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-		ChannelId: optional.NewInterface(SoundChannelId),
-		Limit:     optional.NewInt32(200),
-	})
+	files, res, err := getAllFiles(accessToken)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +84,8 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 			return nil, fmt.Errorf("failed to generate random integer: %w", err)
 		}
 		f := files[r]
+
+		client, auth := newClient(accessToken)
 		user, res, err := client.UserApi.GetUser(auth, *f.UploaderId)
 		if err != nil {
 			return nil, err
