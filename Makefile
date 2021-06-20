@@ -2,6 +2,14 @@
 up:
 	@docker compose up
 
+.PHONY: up-d
+up-d:
+	@docker compose up -d
+
+.PHONY: logs
+logs:
+	@docker compose logs -f
+
 .PHONY: down
 down:
 	@docker compose down
