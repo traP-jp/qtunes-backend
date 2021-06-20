@@ -7,7 +7,7 @@ entrypoint: ./main
 
 http_proxy: 3000
 
-https: on
+https: hard
 
 cname:
   qtunes.trap.games
