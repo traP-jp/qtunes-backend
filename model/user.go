@@ -78,11 +78,19 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		return nil, err
 	}
 
-	res := make([]*domain.File, 0, len(files))
+	fileIdMap := make(map[string]*domain.File)
 	for _, v := range files {
-		if v.IsFavoriteByMe {
-			res = append(res, v)
-		}
+		fileIdMap[v.ID] = v
+	}
+
+	favsMap, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*domain.File, 0, len(files))
+	for k := range favsMap {
+		res = append(res, fileIdMap[k])
 	}
 
 	return res, nil
