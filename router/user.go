@@ -45,7 +45,8 @@ func getUsersMeHandler(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err).Error())
 	}
 	accessToken := sess.Values["accessToken"].(string)
-	res, err := model.GetUsersMe(ctx, accessToken)
+	myUserID := sess.Values["id"].(string)
+	res, err := model.GetUsersMe(ctx, accessToken, myUserID)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err).Error())
 	}
