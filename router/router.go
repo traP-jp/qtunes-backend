@@ -91,6 +91,7 @@ func SetRouting(sess sess.Session, env string) {
 			apiUsers.GET("", getUsersHandler, userAuthMiddleware)
 			apiUsers.GET("/:userID", getUserHandler, userAuthMiddleware)
 			apiUsers.GET("/me", getUsersMeHandler, userAuthMiddleware)
+			apiUsers.GET("/me/favorites", getUsersMeFavoritesHandler, userAuthMiddleware)
 		}
 
 		//作曲者
