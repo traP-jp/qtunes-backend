@@ -73,7 +73,7 @@ func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*User
 }
 
 func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
-	files, err := GetFiles(ctx, accessToken, userID)
+	files, err := GetFiles(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

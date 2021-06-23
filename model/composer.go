@@ -116,7 +116,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	files, err := GetFiles(ctx, accessToken, composerID)
+	files, err := GetFiles(ctx, composerID)
 	if err != nil {
 		return nil, err
 	}
