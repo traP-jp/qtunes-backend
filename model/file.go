@@ -114,6 +114,7 @@ func convertFile(file File, count uint32, isFavorite bool) domain.File {
 		Title:          file.Title,
 		ComposerID:     file.ComposerID,
 		ComposerName:   file.ComposerName,
+		MessageID:      file.MessageID,
 		FavoriteCount:  count,
 		IsFavoriteByMe: isFavorite,
 		CreatedAt:      file.CreatedAt,
