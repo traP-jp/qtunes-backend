@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
@@ -57,56 +56,6 @@ func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
 	}
 
 	return res, nil
-}
-
-func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
-	files, err := getAllFiles(accessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	audioFile := &domain.File{}
-	for {
-		rand.Seed(time.Now().UnixNano())
-		r := rand.Intn(len(files))
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate random integer: %w", err)
-		}
-		f := files[r]
-
-		client, auth := newClient(accessToken)
-		user, res, err := client.UserApi.GetUser(auth, *f.UploaderId)
-		if err != nil {
-			return nil, err
-		}
-		if res.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-		}
-		if strings.HasPrefix(f.Mime, "audio") {
-			audioFile.ID = f.Id
-			audioFile.Title = format(f.Name)
-			audioFile.ComposerName = user.Name
-			audioFile.ComposerID = *f.UploaderId
-			audioFile.CreatedAt = f.CreatedAt
-			break
-		}
-	}
-
-	// DBからお気に入りを取得
-	favoriteCount, err := getFavoriteCount(ctx, audioFile.ID)
-	if err != nil {
-		return nil, err
-	}
-	// DBから自分がお気に入りに追加しているかを取得
-	isFavoriteByMe, err := getMyFavorite(ctx, userID, audioFile.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	audioFile.FavoriteCount = favoriteCount.Count
-	audioFile.IsFavoriteByMe = isFavoriteByMe
-
-	return audioFile, nil
 }
 
 func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*domain.File, error) {

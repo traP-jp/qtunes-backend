@@ -2,7 +2,9 @@ package router
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
 	"github.com/labstack/echo-contrib/session"
@@ -36,14 +38,16 @@ func getRandomFileHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	file, err := model.GetRandomFile(ctx, accessToken, userID)
+	files, err := model.GetFiles(ctx, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return echo.NewHTTPError(http.StatusOK, file)
+	rand.Seed(time.Now().UnixNano())
+	r := rand.Intn(len(files))
+
+	return echo.NewHTTPError(http.StatusOK, files[r])
 }
 
 // getFileHandler GET /files/:fileID
