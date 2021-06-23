@@ -20,9 +20,8 @@ func getFilesHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	files, err := model.GetFiles(ctx, accessToken, userID)
+	files, err := model.GetFiles(ctx, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}

@@ -24,7 +24,7 @@ type File struct {
 	CreatedAt    time.Time `db:"created_at"`
 }
 
-func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
+func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
 	var files []*File
 	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
 	if err != nil {
