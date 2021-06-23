@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/antihax/optional"
@@ -43,41 +42,18 @@ func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
 
 	res := make([]*domain.File, 0, len(files))
 	for _, v := range files {
-		res = append(res, &domain.File{
-			ID:             v.ID,
-			Title:          v.Title,
-			ComposerID:     v.ComposerID,
-			ComposerName:   v.ComposerName,
-			MessageID:      v.MessageID,
-			FavoriteCount:  favoriteCounts[v.ID],
-			IsFavoriteByMe: myFavorites[v.ID],
-			CreatedAt:      v.CreatedAt,
-		})
+		f := convertFile(*v, favoriteCounts[v.ID], myFavorites[v.ID])
+		res = append(res, &f)
 	}
 
 	return res, nil
 }
 
-func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*domain.File, error) {
-	client, auth := newClient(accessToken)
-	file, res, err := client.FileApi.GetFileMeta(auth, fileID)
+func GetFile(ctx context.Context, userID, fileID string) (*domain.File, error) {
+	var file File
+	err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
 	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
-
-	if !strings.HasPrefix(file.Mime, "audio") {
-		return nil, fmt.Errorf("")
-	}
-
-	user, res, err := client.UserApi.GetUser(auth, *file.UploaderId)
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
 
 	// DBからお気に入りを取得
@@ -91,17 +67,9 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 		return nil, err
 	}
 
-	audioFile := &domain.File{
-		ID:             file.Id,
-		Title:          format(file.Name),
-		ComposerID:     *file.UploaderId,
-		ComposerName:   user.Name,
-		FavoriteCount:  favoriteCount.Count,
-		IsFavoriteByMe: isFavoriteByMe,
-		CreatedAt:      file.CreatedAt,
-	}
+	res := convertFile(file, favoriteCount.Count, isFavoriteByMe)
 
-	return audioFile, nil
+	return &res, nil
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
@@ -140,12 +108,26 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 	return nil
 }
 
+func convertFile(file File, count uint32, isFavorite bool) domain.File {
+	return domain.File{
+		ID:             file.ID,
+		Title:          file.Title,
+		ComposerID:     file.ComposerID,
+		ComposerName:   file.ComposerName,
+		FavoriteCount:  count,
+		IsFavoriteByMe: isFavorite,
+		CreatedAt:      file.CreatedAt,
+	}
+}
+
+//TODO後で消す
 // 拡張子を除く
 func format(str string) string {
 	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
 	return rep.ReplaceAllString(str, "")
 }
 
+//TODO後で消す
 // offsetを変えて全ファイルを取得
 func getAllFiles(accessToken string) ([]traq.FileInfo, error) {
 	var files []traq.FileInfo
