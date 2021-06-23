@@ -15,24 +15,20 @@ import (
 	traq "github.com/sapphi-red/go-traq"
 )
 
+type File struct {
+	ID           string    `db:"id"`
+	Title        string    `db:"title"`
+	ComposerID   string    `db:"composer_id"`
+	ComposerName string    `db:"composer_name"`
+	MessageID    string    `db:"message_id"`
+	CreatedAt    time.Time `db:"created_at"`
+}
+
 func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
-	files, err := getAllFiles(accessToken)
+	var files []*File
+	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
 	if err != nil {
-		return nil, err
-	}
-
-	client, auth := newClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
-
-	userIdMap := map[string]string{}
-	for _, v := range users {
-		userIdMap[v.Id] = v.Name
+		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
 
 	// DBからお気に入りを取得
@@ -46,22 +42,21 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 		return nil, err
 	}
 
-	audioFiles := make([]*domain.File, 0, len(files))
+	res := make([]*domain.File, 0, len(files))
 	for _, v := range files {
-		if strings.HasPrefix(v.Mime, "audio") {
-			audioFiles = append(audioFiles, &domain.File{
-				ID:             v.Id,
-				Title:          format(v.Name),
-				ComposerID:     *v.UploaderId,
-				ComposerName:   userIdMap[*v.UploaderId],
-				FavoriteCount:  favoriteCounts[v.Id],
-				IsFavoriteByMe: myFavorites[v.Id],
-				CreatedAt:      v.CreatedAt,
-			})
-		}
+		res = append(res, &domain.File{
+			ID:             v.ID,
+			Title:          v.Title,
+			ComposerID:     v.ComposerID,
+			ComposerName:   v.ComposerName,
+			MessageID:      v.MessageID,
+			FavoriteCount:  favoriteCounts[v.ID],
+			IsFavoriteByMe: myFavorites[v.ID],
+			CreatedAt:      v.CreatedAt,
+		})
 	}
 
-	return audioFiles, nil
+	return res, nil
 }
 
 func GetRandomFile(ctx context.Context, accessToken string, userID string) (*domain.File, error) {
