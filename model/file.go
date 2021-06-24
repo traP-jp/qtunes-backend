@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/antihax/optional"
@@ -116,13 +115,6 @@ func convertFile(file File, count uint32, isFavorite bool) domain.File {
 		IsFavoriteByMe: isFavorite,
 		CreatedAt:      file.CreatedAt,
 	}
-}
-
-//TODO後で消す
-// 拡張子を除く
-func format(str string) string {
-	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
-	return rep.ReplaceAllString(str, "")
 }
 
 //TODO後で消す

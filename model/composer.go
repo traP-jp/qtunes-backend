@@ -131,7 +131,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		if file.ComposerID == composerID {
 			composerFiles = append(composerFiles, &domain.File{
 				ID:             file.ID,
-				Title:          format(file.Title),
+				Title:          file.Title,
 				ComposerID:     composerID,
 				ComposerName:   user.Name,
 				FavoriteCount:  file.FavoriteCount,
