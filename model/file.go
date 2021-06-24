@@ -21,7 +21,7 @@ func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain
 		return nil, err
 	}
 
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 		}
 		f := files[r]
 
-		client, auth := newClient(accessToken)
+		client, auth := NewTraqClient(accessToken)
 		user, res, err := client.UserApi.GetUser(auth, *f.UploaderId)
 		if err != nil {
 			return nil, err
@@ -115,7 +115,7 @@ func GetRandomFile(ctx context.Context, accessToken string, userID string) (*dom
 }
 
 func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*domain.File, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	file, res, err := client.FileApi.GetFileMeta(auth, fileID)
 	if err != nil {
 		return nil, err
@@ -161,7 +161,7 @@ func GetFile(ctx context.Context, accessToken string, userID, fileID string) (*d
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
 		return nil, nil, err
@@ -175,7 +175,7 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*o
 
 func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {
 	if favorite {
-		client, auth := newClient(accessToken)
+		client, auth := NewTraqClient(accessToken)
 		file, res, err := client.FileApi.GetFileMeta(auth, fileID)
 		if err != nil {
 			return err
@@ -206,7 +206,7 @@ func format(str string) string {
 func getAllFiles(accessToken string) ([]traq.FileInfo, error) {
 	var files []traq.FileInfo
 
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	for i := 0; ; i += 200 {
 		f, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
 			ChannelId: optional.NewInterface(SoundChannelId),
