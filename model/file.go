@@ -103,7 +103,7 @@ func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favor
 	return nil
 }
 
-func convertFile(file File, count uint32, isFavorite bool) domain.File {
+func convertFile(file File, count int, isFavorite bool) domain.File {
 	return domain.File{
 		ID:             file.ID,
 		Title:          file.Title,

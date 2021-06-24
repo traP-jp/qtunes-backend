@@ -16,16 +16,16 @@ type Favorite struct {
 
 type FavoriteCount struct {
 	SoundID string `db:"sound_id"`
-	Count   uint32 `db:"count"`
+	Count   int    `db:"count"`
 }
 
-func getFavoriteCounts(ctx context.Context) (map[string]uint32, error) {
+func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
 	var favCnt []*FavoriteCount
 	err := db.SelectContext(ctx, &favCnt, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite counts: %w", err)
 	}
-	res := make(map[string]uint32)
+	res := make(map[string]int)
 	for _, v := range favCnt {
 		res[v.SoundID] = v.Count
 	}
