@@ -8,9 +8,15 @@ import (
 	"time"
 
 	"github.com/antihax/optional"
-	"github.com/hackathon-21-spring-02/back-end/domain"
 	"github.com/sapphi-red/go-traq"
 )
+
+type Composer struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	PostCount int       `json:"post_count"`
+	UpdatedAt time.Time `json:"-"`
+}
 
 // TODO: 変数名ちゃんと考える
 type composerInfo struct {
@@ -18,7 +24,7 @@ type composerInfo struct {
 	UpdatedAt time.Time
 }
 
-func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, error) {
+func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
 	client, auth := newClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
@@ -33,10 +39,10 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, err
 	}
 
-	composers := make([]*domain.Composer, 0, len(users))
+	composers := make([]*Composer, 0, len(users))
 	for _, user := range users {
 		if val, ok := info[user.Id]; ok && val.PostCount > 0 {
-			composers = append(composers, &domain.Composer{
+			composers = append(composers, &Composer{
 				ID:        user.Id,
 				Name:      user.Name,
 				PostCount: val.PostCount,
@@ -52,7 +58,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 	return composers, err
 }
 
-func GetComposer(ctx context.Context, accessToken string, composerID string) (*domain.Composer, error) {
+func GetComposer(ctx context.Context, accessToken string, composerID string) (*Composer, error) {
 	client, auth := newClient(accessToken)
 	user, res, err := client.UserApi.GetUser(auth, composerID)
 	if err != nil {
@@ -67,7 +73,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 		return nil, err
 	}
 
-	composer := &domain.Composer{
+	composer := &Composer{
 		ID:        composerID,
 		Name:      user.Name,
 		PostCount: postCountByUser[user.Id].PostCount,
@@ -76,7 +82,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 	return composer, err
 }
 
-func GetComposerByName(ctx context.Context, accessToken string, name string) (*domain.Composer, error) {
+func GetComposerByName(ctx context.Context, accessToken string, name string) (*Composer, error) {
 	client, auth := newClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{Name: optional.NewString(name)})
 	if err != nil {
@@ -95,7 +101,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*d
 	}
 
 	u := users[0]
-	composer := domain.Composer{
+	composer := Composer{
 		ID:        u.Id,
 		Name:      u.Name,
 		PostCount: postCountByUser[u.Id].PostCount,
