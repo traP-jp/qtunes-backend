@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type favorite struct {
+type editFavorite struct {
 	Favorite bool
 }
 
@@ -90,7 +90,7 @@ func getFileDownloadHandler(c echo.Context) error {
 func putFileFavoriteHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	fileID := c.Param("fileID")
-	fav := favorite{}
+	fav := editFavorite{}
 	err := c.Bind(&fav)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err))
