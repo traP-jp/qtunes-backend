@@ -15,6 +15,17 @@ import (
 	traq "github.com/sapphi-red/go-traq"
 )
 
+type File struct {
+	ID             string    `json:"id"  db:"id"`
+	Title          string    `json:"title"  db:"title"`
+	ComposerID     string    `json:"composer_id"  db:"composer_id"`
+	ComposerName   string    `json:"composer_name"  db:"composer_name"`
+	MessageID      string    `json:"message_id"  db:"message_id"`
+	FavoriteCount  int       `json:"favorite_count"  db:"-"`
+	IsFavoriteByMe bool      `json:"is_favorite_by_me"  db:"-"`
+	CreatedAt      time.Time `json:"created_at"  db:"created_at"`
+}
+
 func GetFiles(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
 	files, err := getAllFiles(accessToken)
 	if err != nil {
@@ -191,6 +202,19 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 		if err := deleteFileFavorite(ctx, userID, fileID); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func InsertFile(ctx context.Context, file *File) error {
+	_, err := db.ExecContext(
+		ctx,
+		"INSERT IGNORE INTO files (id, title, composer_id, composer_name, message_id, created_at)VALUES (?, ?, ?, ?, ?, ?)",
+		file.ID, file.Title, file.ComposerID, file.ComposerName, file.MessageID, file.CreatedAt,
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil
