@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/antihax/optional"
 	"github.com/hackathon-21-spring-02/back-end/domain"
 	traq "github.com/sapphi-red/go-traq"
 )
@@ -45,7 +44,7 @@ func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
 		res = append(res, &f)
 	}
 
-	return res, nil
+	return res, nil //TODO:domain.Fileを返すべきではない
 }
 
 func GetFile(ctx context.Context, userID, fileID string) (*domain.File, error) {
@@ -115,32 +114,4 @@ func convertFile(file File, count uint32, isFavorite bool) domain.File {
 		IsFavoriteByMe: isFavorite,
 		CreatedAt:      file.CreatedAt,
 	}
-}
-
-//TODO後で消す
-// offsetを変えて全ファイルを取得
-func getAllFiles(accessToken string) ([]traq.FileInfo, error) {
-	var files []traq.FileInfo
-
-	client, auth := newClient(accessToken)
-	for i := 0; ; i += 200 {
-		f, res, err := client.FileApi.GetFiles(auth, &traq.FileApiGetFilesOpts{
-			ChannelId: optional.NewInterface(SoundChannelId),
-			Limit:     optional.NewInt32(200),
-			Offset:    optional.NewInt32(int32(i)),
-		})
-		if err != nil {
-			return nil, err
-		}
-		if res.StatusCode != http.StatusOK {
-			return nil, err
-		}
-		if len(f) == 0 {
-			break
-		}
-
-		files = append(files, f...)
-	}
-
-	return files, nil
 }

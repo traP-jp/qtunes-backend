@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/antihax/optional"
@@ -29,7 +28,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*domain.Composer, 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	info, err := getComposersInfo(accessToken)
+	info, err := getComposersInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +62,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*d
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser, err := getComposersInfo(accessToken)
+	postCountByUser, err := getComposersInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +89,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*d
 		return nil, fmt.Errorf("Invalid name")
 	}
 
-	postCountByUser, err := getComposersInfo(accessToken)
+	postCountByUser, err := getComposersInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -145,27 +144,26 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 }
 
 // TODO: 関数名考える
-func getComposersInfo(accessToken string) (map[string]*composerInfo, error) {
+func getComposersInfo(ctx context.Context) (map[string]*composerInfo, error) {
 	info := make(map[string]*composerInfo)
-	files, err := getAllFiles(accessToken)
+	var files []*File
+	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
 
 	for _, v := range files {
-		if strings.HasPrefix(v.Mime, "audio") {
-			if _, ok := info[*v.UploaderId]; !ok {
-				info[*v.UploaderId] = &composerInfo{
-					PostCount: 1,
-					UpdatedAt: v.CreatedAt,
-				}
-				continue
+		if _, ok := info[v.ComposerID]; !ok {
+			info[v.ComposerID] = &composerInfo{
+				PostCount: 1,
+				UpdatedAt: v.CreatedAt,
 			}
+			continue
+		}
 
-			info[*v.UploaderId].PostCount++
-			if v.CreatedAt.After(info[*v.UploaderId].UpdatedAt) {
-				info[*v.UploaderId].UpdatedAt = v.CreatedAt
-			}
+		info[v.ComposerID].PostCount++
+		if v.CreatedAt.After(info[v.ComposerID].UpdatedAt) {
+			info[v.ComposerID].UpdatedAt = v.CreatedAt
 		}
 	}
 
