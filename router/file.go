@@ -67,6 +67,25 @@ func getFileHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, file)
 }
 
+// getFileDownloadHandler GET /files/:fileID/download
+func getFileDownloadHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	fileID := c.Param("fileID")
+
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get session: %w", err))
+	}
+	accessToken := sess.Values["accessToken"].(string)
+
+	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+	}
+
+	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
+}
+
 // putFileFavoriteHandler PUT /files/:fileID/favorite
 func putFileFavoriteHandler(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -91,23 +110,4 @@ func putFileFavoriteHandler(c echo.Context) error {
 	}
 
 	return echo.NewHTTPError(http.StatusOK)
-}
-
-// getFileDownloadHandler GET /files/:fileID/download
-func getFileDownloadHandler(c echo.Context) error {
-	ctx := c.Request().Context()
-	fileID := c.Param("fileID")
-
-	sess, err := session.Get("sessions", c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get session: %w", err))
-	}
-	accessToken := sess.Values["accessToken"].(string)
-
-	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
-	}
-
-	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
 }
