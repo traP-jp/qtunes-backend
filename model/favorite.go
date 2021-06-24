@@ -8,19 +8,15 @@ import (
 )
 
 type Favorite struct {
-	UserID     string    `json:"user_id"  db:"user_id"`
-	ComposerID string    `json:"composer_id"  db:"composer_id"`
-	SoundID    string    `json:"sound_id"  db:"sound_id"`
-	CreatedAt  time.Time `json:"created_at"  db:"created_at"`
-}
-
-type FavoriteCount struct {
-	SoundID string `db:"sound_id"`
-	Count   int    `db:"count"`
+	UserID     string    `db:"user_id"`
+	ComposerID string    `db:"composer_id"`
+	SoundID    string    `db:"sound_id"`
+	CreatedAt  time.Time `db:"created_at"`
+	Count      int
 }
 
 func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
-	var favCnt []*FavoriteCount
+	var favCnt []*Favorite
 	err := db.SelectContext(ctx, &favCnt, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite counts: %w", err)
@@ -33,8 +29,8 @@ func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
 	return res, nil
 }
 
-func getFavoriteCount(ctx context.Context, fileID string) (*FavoriteCount, error) {
-	favCnt := FavoriteCount{}
+func getFavoriteCount(ctx context.Context, fileID string) (*Favorite, error) {
+	favCnt := Favorite{}
 	err := db.GetContext(ctx, &favCnt, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite count: %w", err)

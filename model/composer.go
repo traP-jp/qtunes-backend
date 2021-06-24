@@ -18,12 +18,6 @@ type Composer struct {
 	UpdatedAt time.Time `json:"-"`
 }
 
-// TODO: 変数名ちゃんと考える
-type composerInfo struct {
-	PostCount int
-	UpdatedAt time.Time
-}
-
 func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
 	client, auth := newClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
@@ -150,8 +144,8 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 }
 
 // TODO: 関数名考える
-func getComposersInfo(ctx context.Context) (map[string]*composerInfo, error) {
-	info := make(map[string]*composerInfo)
+func getComposersInfo(ctx context.Context) (map[string]*Composer, error) {
+	info := make(map[string]*Composer)
 	var files []*File
 	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
 	if err != nil {
@@ -160,7 +154,7 @@ func getComposersInfo(ctx context.Context) (map[string]*composerInfo, error) {
 
 	for _, v := range files {
 		if _, ok := info[v.ComposerID]; !ok {
-			info[v.ComposerID] = &composerInfo{
+			info[v.ComposerID] = &Composer{
 				PostCount: 1,
 				UpdatedAt: v.CreatedAt,
 			}

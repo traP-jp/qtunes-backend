@@ -14,8 +14,7 @@ type User struct {
 }
 
 type UsersMe struct {
-	ID            string   `json:"id"  db:"id"`
-	Name          string   `json:"name"  db:"name"`
+	User
 	FavoriteFiles []string `json:"favorite_files" db:"sound_id"`
 }
 
