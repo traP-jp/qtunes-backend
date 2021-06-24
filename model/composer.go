@@ -105,7 +105,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*d
 	return &composer, nil
 }
 
-func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*domain.File, error) {
+func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*File, error) {
 	client, auth := newClient(accessToken)
 	user, res, err := client.UserApi.GetUser(auth, composerID)
 	if err != nil {
@@ -125,10 +125,10 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		return nil, err
 	}
 
-	composerFiles := make([]*domain.File, 0, len(files))
+	composerFiles := make([]*File, 0, len(files))
 	for _, file := range files {
 		if file.ComposerID == composerID {
-			composerFiles = append(composerFiles, &domain.File{
+			composerFiles = append(composerFiles, &File{
 				ID:             file.ID,
 				Title:          file.Title,
 				ComposerID:     composerID,

@@ -5,8 +5,6 @@ import (
 
 	"fmt"
 	"time"
-
-	"github.com/hackathon-21-spring-02/back-end/domain"
 )
 
 type User struct {
@@ -72,13 +70,13 @@ func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*User
 	return &usersMe, nil
 }
 
-func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
+func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*File, error) {
 	files, err := GetFiles(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	fileIdMap := make(map[string]*domain.File)
+	fileIdMap := make(map[string]*File)
 	for _, v := range files {
 		fileIdMap[v.ID] = v
 	}
@@ -88,7 +86,7 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		return nil, err
 	}
 
-	res := make([]*domain.File, 0, len(files))
+	res := make([]*File, 0, len(files))
 	for k := range favsMap {
 		res = append(res, fileIdMap[k])
 	}

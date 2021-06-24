@@ -7,20 +7,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/hackathon-21-spring-02/back-end/domain"
 	traq "github.com/sapphi-red/go-traq"
 )
 
 type File struct {
-	ID           string    `db:"id"`
-	Title        string    `db:"title"`
-	ComposerID   string    `db:"composer_id"`
-	ComposerName string    `db:"composer_name"`
-	MessageID    string    `db:"message_id"`
-	CreatedAt    time.Time `db:"created_at"`
+	ID             string    `json:"id"  db:"id"`
+	Title          string    `json:"title"  db:"title"`
+	ComposerID     string    `json:"composer_id"  db:"composer_id"`
+	ComposerName   string    `json:"composer_name"  db:"composer_name"`
+	MessageID      string    `json:"message_id"  db:"message_id"`
+	FavoriteCount  int       `json:"favorite_count"  db:"-"`
+	IsFavoriteByMe bool      `json:"is_favorite_by_me"  db:"-"`
+	CreatedAt      time.Time `json:"created_at"  db:"created_at"`
 }
 
-func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
+func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	var files []*File
 	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
 	if err != nil {
@@ -38,16 +39,15 @@ func GetFiles(ctx context.Context, userID string) ([]*domain.File, error) {
 		return nil, err
 	}
 
-	res := make([]*domain.File, 0, len(files))
 	for _, v := range files {
-		f := convertFile(*v, favoriteCounts[v.ID], myFavorites[v.ID])
-		res = append(res, &f)
+		v.FavoriteCount = favoriteCounts[v.ID]
+		v.IsFavoriteByMe = myFavorites[v.ID]
 	}
 
-	return res, nil //TODO:domain.Fileを返すべきではない
+	return files, nil
 }
 
-func GetFile(ctx context.Context, userID, fileID string) (*domain.File, error) {
+func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	var file File
 	err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
 	if err != nil {
@@ -65,9 +65,10 @@ func GetFile(ctx context.Context, userID, fileID string) (*domain.File, error) {
 		return nil, err
 	}
 
-	res := convertFile(file, favoriteCount.Count, isFavoriteByMe)
+	file.FavoriteCount = favoriteCount.Count
+	file.IsFavoriteByMe = isFavoriteByMe
 
-	return &res, nil
+	return &file, nil
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
@@ -101,17 +102,4 @@ func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favor
 	}
 
 	return nil
-}
-
-func convertFile(file File, count int, isFavorite bool) domain.File {
-	return domain.File{
-		ID:             file.ID,
-		Title:          file.Title,
-		ComposerID:     file.ComposerID,
-		ComposerName:   file.ComposerName,
-		MessageID:      file.MessageID,
-		FavoriteCount:  count,
-		IsFavoriteByMe: isFavorite,
-		CreatedAt:      file.CreatedAt,
-	}
 }
