@@ -85,18 +85,15 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*o
 	return file, res, nil
 }
 
-func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, fileID string, favorite bool) error {
+func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favorite bool) error {
 	if favorite {
-		client, auth := newClient(accessToken)
-		file, res, err := client.FileApi.GetFileMeta(auth, fileID)
+		var file File
+		err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
 		if err != nil {
-			return err
-		}
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+			return fmt.Errorf("Failed to get files: %w", err)
 		}
 
-		if err := insertFileFavorite(ctx, userID, *file.UploaderId, fileID); err != nil {
+		if err := insertFileFavorite(ctx, userID, file.ComposerID, fileID); err != nil {
 			return err
 		}
 	} else {

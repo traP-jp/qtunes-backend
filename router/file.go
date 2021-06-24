@@ -81,9 +81,8 @@ func putFileFavoriteHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	err = model.ToggleFileFavorite(ctx, accessToken, userID, fileID, fav.Favorite)
+	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
 	if err == model.DBErrs["NoChange"] {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
