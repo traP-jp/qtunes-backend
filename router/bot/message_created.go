@@ -35,7 +35,7 @@ func MessageCreatedHandler(ctx context.Context, accessToken string, payload *tra
 
 			err = model.InsertFile(ctx, &req)
 			if err != nil {
-				return fmt.Errorf("failed to insert image: %w", err)
+				return fmt.Errorf("failed to insert file: %w", err)
 			}
 		}
 	}

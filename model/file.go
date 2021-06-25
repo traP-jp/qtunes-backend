@@ -220,6 +220,19 @@ func InsertFile(ctx context.Context, file *File) error {
 	return nil
 }
 
+func DeleteFiles(ctx context.Context, messageID string) error {
+	_, err := db.ExecContext(
+		ctx,
+		"DELETE favorites, files FROM favorites LEFT JOIN files ON favorites.sound_id = files.id WHERE files.message_id = ?",
+		messageID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // 拡張子を除く
 func format(str string) string {
 	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
