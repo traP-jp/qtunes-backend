@@ -207,6 +207,15 @@ func ToggleFileFavorite(ctx context.Context, accessToken string, userID string, 
 	return nil
 }
 
+func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error) {
+	var files []string
+	err := db.SelectContext(ctx, &files, "SELECT id FROM files WHERE message_id = ?", messageID)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get files: %w", err)
+	}
+	return files, nil
+}
+
 func InsertFile(ctx context.Context, file *File) error {
 	_, err := db.ExecContext(
 		ctx,
@@ -220,10 +229,23 @@ func InsertFile(ctx context.Context, file *File) error {
 	return nil
 }
 
+func DeleteFile(ctx context.Context, fileID string) error {
+	_, err := db.ExecContext(
+		ctx,
+		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.id = ?",
+		fileID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteFiles(ctx context.Context, messageID string) error {
 	_, err := db.ExecContext(
 		ctx,
-		"DELETE favorites, files FROM favorites LEFT JOIN files ON favorites.sound_id = files.id WHERE files.message_id = ?",
+		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.message_id = ?",
 		messageID,
 	)
 	if err != nil {

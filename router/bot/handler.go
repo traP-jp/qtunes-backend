@@ -44,6 +44,17 @@ func Handler(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
 		}
+	case "MESSAGE_UPDATED":
+		payload := &traqbot.MessageUpdatedPayload{}
+		err = c.Bind(payload)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+		}
+
+		err = MessageUpdatedHandler(ctx, accessToken, payload)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+		}
 	case "MESSAGE_DELETED":
 		payload := &traqbot.MessageDeletedPayload{}
 		err = c.Bind(payload)
