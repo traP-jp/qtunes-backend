@@ -27,7 +27,7 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		if strings.HasPrefix(file.Mime, "audio") {
 			req := model.File{
 				ID:           file.Id,
-				Title:        file.Name,
+				Title:        removeExt(file.Name),
 				ComposerID:   payload.Message.User.ID,
 				ComposerName: payload.Message.User.Name,
 				MessageID:    payload.Message.ID,

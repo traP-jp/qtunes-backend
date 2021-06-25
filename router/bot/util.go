@@ -21,3 +21,8 @@ func init() {
 		panic(errors.New("verification token should not be empty."))
 	}
 }
+
+func removeExt(str string) string {
+	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
+	return rep.ReplaceAllString(str, "")
+}
