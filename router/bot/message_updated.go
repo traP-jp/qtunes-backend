@@ -41,7 +41,7 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		}
 	}
 
-	var newMap map[string]struct{}
+	newMap := map[string]struct{}{}
 	for _, v := range matches {
 		newMap[v[1]] = struct{}{}
 	}
@@ -51,7 +51,9 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 	}
 	for _, v := range oldArr {
 		if _, ok := newMap[v]; !ok {
-			model.DeleteFile(ctx, v)
+			if err := model.DeleteFile(ctx, v); err != nil {
+				return err
+			}
 		}
 	}
 
