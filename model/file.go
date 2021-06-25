@@ -40,8 +40,17 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	}
 
 	for _, v := range files {
-		v.FavoriteCount = favoriteCounts[v.ID]
-		v.IsFavoriteByMe = myFavorites[v.ID]
+		if cnt, ok := favoriteCounts[v.ID]; ok {
+			v.FavoriteCount = cnt
+		} else {
+			v.FavoriteCount = 0
+		}
+
+		if flag, ok := myFavorites[v.ID]; ok {
+			v.IsFavoriteByMe = flag
+		} else {
+			v.IsFavoriteByMe = false
+		}
 	}
 
 	return files, nil
@@ -87,7 +96,7 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*o
 func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favorite bool) error {
 	if favorite {
 		var file File
-		err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
+		err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
 		if err != nil {
 			return fmt.Errorf("Failed to get files: %w", err)
 		}
