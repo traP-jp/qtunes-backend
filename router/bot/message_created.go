@@ -4,19 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
 	traqbot "github.com/traPtitech/traq-bot"
-)
-
-const (
-	embURLRegexFragment = `/files/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})`
-)
-
-var (
-	embURLRegex = regexp.MustCompile(strings.ReplaceAll("https://q.trap.jp", ".", `\.`) + embURLRegexFragment)
 )
 
 //MessageCreatedHandler MessageCreatedイベントを処理する

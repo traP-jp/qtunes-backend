@@ -3,7 +3,6 @@ package bot
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -13,10 +12,6 @@ import (
 const (
 	botEventHeader = "X-TRAQ-BOT-EVENT"
 	botTokenHeader = "X-TRAQ-BOT-TOKEN"
-)
-
-var (
-	verificationToken = os.Getenv("BOT_VERIFICATION_TOKEN")
 )
 
 func Handler(c echo.Context) error {
@@ -30,14 +25,15 @@ func Handler(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	ctx := c.Request().Context()
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+	}
+	accessToken := sess.Values["accessToken"].(string)
+
 	switch event {
 	case "MESSAGE_CREATED":
-		ctx := c.Request().Context()
-		sess, err := session.Get("sessions", c)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
-		}
-		accessToken := sess.Values["accessToken"].(string)
 		payload := &traqbot.MessageCreatedPayload{}
 		err = c.Bind(payload)
 		if err != nil {

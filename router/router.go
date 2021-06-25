@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	sess "github.com/hackathon-21-spring-02/back-end/session"
 	"github.com/hackathon-21-spring-02/back-end/router/bot"
+	sess "github.com/hackathon-21-spring-02/back-end/session"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
