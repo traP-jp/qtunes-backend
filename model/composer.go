@@ -28,14 +28,14 @@ func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) 
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	info, err := getComposersInfo(ctx)
+	composersMap, err := getComposersMap(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	composers := make([]*Composer, 0, len(users))
 	for _, user := range users {
-		if val, ok := info[user.Id]; ok && val.PostCount > 0 {
+		if val, ok := composersMap[user.Id]; ok && val.PostCount > 0 {
 			composers = append(composers, &Composer{
 				ID:        user.Id,
 				Name:      user.Name,
@@ -62,7 +62,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*C
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	postCountByUser, err := getComposersInfo(ctx)
+	postCountByUser, err := getComposersMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*C
 		return nil, fmt.Errorf("Invalid name")
 	}
 
-	postCountByUser, err := getComposersInfo(ctx)
+	postCountByUser, err := getComposersMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -143,29 +143,28 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 	return composerFiles, nil
 }
 
-// TODO: 関数名考える
-func getComposersInfo(ctx context.Context) (map[string]*Composer, error) {
-	info := make(map[string]*Composer)
+func getComposersMap(ctx context.Context) (map[string]*Composer, error) {
+	composersMap := make(map[string]*Composer)
 	var files []*File
-	err := db.SelectContext(ctx, &files, "SELECT * FROM files")
+	err := db.SelectContext(ctx, &files, "SELECT composer_id, created_at FROM files")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
 
 	for _, v := range files {
-		if _, ok := info[v.ComposerID]; !ok {
-			info[v.ComposerID] = &Composer{
+		if _, ok := composersMap[v.ComposerID]; !ok {
+			composersMap[v.ComposerID] = &Composer{
 				PostCount: 1,
 				UpdatedAt: v.CreatedAt,
 			}
 			continue
 		}
 
-		info[v.ComposerID].PostCount++
-		if v.CreatedAt.After(info[v.ComposerID].UpdatedAt) {
-			info[v.ComposerID].UpdatedAt = v.CreatedAt
+		composersMap[v.ComposerID].PostCount++
+		if v.CreatedAt.After(composersMap[v.ComposerID].UpdatedAt) {
+			composersMap[v.ComposerID].UpdatedAt = v.CreatedAt
 		}
 	}
 
-	return info, nil
+	return composersMap, nil
 }
