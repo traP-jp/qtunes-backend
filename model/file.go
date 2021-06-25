@@ -56,6 +56,22 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	return files, nil
 }
 
+func GetRandomFile(ctx context.Context, userID string) (*File, error) {
+	var rand int
+	err := db.GetContext(ctx, &rand, "SELECT FLOOR(COUNT(id)*RAND()) AS rand FROM files LIMIT 1")
+	if err != nil {
+		return nil, err
+	}
+
+	var file File
+	err = db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1 OFFSET ?", rand)
+	if err != nil {
+		return nil, err
+	}
+
+	return &file, nil
+}
+
 func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	var file File
 	err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
