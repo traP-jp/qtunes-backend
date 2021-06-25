@@ -15,7 +15,7 @@ func MessageCreatedHandler(ctx context.Context, accessToken string, payload *tra
 	matches := embURLRegex.FindAllStringSubmatch(payload.Message.Text, -1)
 	client, auth := model.NewTraqClient(accessToken)
 	for _, v := range matches {
-		file, res, err := client.FileApi.GetFileMeta(auth, v[0])
+		file, res, err := client.FileApi.GetFileMeta(auth, v[1])
 		if err != nil {
 			return err
 		}
