@@ -74,7 +74,7 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 
 func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	var file File
-	err := db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1")
+	err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
