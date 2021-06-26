@@ -50,13 +50,13 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		return err
 	}
 
-	req := make([]string, 0, len(oldArr)) // 削除するメッセージの配列
+	deleteReq := make([]string, 0, len(oldArr)) // 削除するメッセージの配列
 	for _, v := range oldArr {
 		if _, ok := newMap[v]; !ok {
-			req = append(req, v)
+			deleteReq = append(deleteReq, v)
 		}
 	}
-	if err := model.DeleteFiles(ctx, req); err != nil {
+	if err := model.DeleteFiles(ctx, deleteReq); err != nil {
 		return err
 	}
 
