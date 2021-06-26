@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -57,14 +58,17 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 }
 
 func GetRandomFile(ctx context.Context, userID string) (*File, error) {
-	var rand int
-	err := db.GetContext(ctx, &rand, "SELECT FLOOR(COUNT(id)*RAND()) AS rand FROM files LIMIT 1")
+	var count int
+	err := db.GetContext(ctx, &count, "SELECT COUNT(id) AS count FROM files LIMIT 1")
 	if err != nil {
 		return nil, err
 	}
 
+	rand.Seed(time.Now().UnixNano())
+	r := rand.Intn(count)
+
 	var file File
-	err = db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1 OFFSET ?", rand)
+	err = db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1 OFFSET ?", r)
 	if err != nil {
 		return nil, err
 	}
