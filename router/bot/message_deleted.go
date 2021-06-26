@@ -10,7 +10,7 @@ import (
 
 //MessageDeletedHandler MessageDeletedイベントを処理する
 func MessageDeletedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageDeletedPayload) error {
-	err := model.DeleteFiles(ctx, payload.Message.ID)
+	err := model.DeleteFilesFromMessageId(ctx, payload.Message.ID)
 	if err != nil {
 		return fmt.Errorf("failed to delete files: %w", err)
 	}
