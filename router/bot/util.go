@@ -16,7 +16,7 @@ func init() {
 	}
 }
 
-func removeExt(str string) string {
+func removeExtensions(str string) string {
 	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}$`)
 	return rep.ReplaceAllString(str, "")
 }
