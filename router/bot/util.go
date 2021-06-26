@@ -23,6 +23,6 @@ func init() {
 }
 
 func removeExt(str string) string {
-	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}`)
+	rep := regexp.MustCompile(`\.[A-Za-z0-9]{3,5}$`)
 	return rep.ReplaceAllString(str, "")
 }
