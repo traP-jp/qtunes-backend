@@ -14,6 +14,7 @@ import (
 func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageUpdatedPayload) error {
 	fileIDs := extractFileIDs(payload.Message.Text)
 
+	insertReq := make([]*model.File, 0, len(fileIDs))
 	client, auth := model.NewTraqClient(accessToken)
 	for _, v := range fileIDs {
 		file, res, err := client.FileApi.GetFileMeta(auth, v)
@@ -25,16 +26,16 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		}
 
 		if strings.HasPrefix(file.Mime, "audio") {
-			req := model.File{
+			insertReq = append(insertReq, &model.File{
 				ID:           file.Id,
 				Title:        removeExtensions(file.Name),
 				ComposerID:   payload.Message.User.ID,
 				ComposerName: payload.Message.User.Name,
 				MessageID:    payload.Message.ID,
 				CreatedAt:    payload.Message.CreatedAt,
-			}
+			})
 
-			err = model.InsertFile(ctx, &req)
+			err = model.InsertFiles(ctx, insertReq)
 			if err != nil {
 				return fmt.Errorf("failed to insert file: %w", err)
 			}
