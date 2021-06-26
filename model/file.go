@@ -242,7 +242,7 @@ func DeleteFile(ctx context.Context, fileID string) error {
 	return nil
 }
 
-func DeleteFiles(ctx context.Context, messageID string) error {
+func DeleteFilesFromMessageId(ctx context.Context, messageID string) error {
 	_, err := db.ExecContext(
 		ctx,
 		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.message_id = ?",
