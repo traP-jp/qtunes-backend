@@ -12,10 +12,10 @@ import (
 
 //MessageCreatedHandler MessageCreatedイベントを処理する
 func MessageCreatedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageCreatedPayload) error {
-	matches := embURLRegex.FindAllStringSubmatch(payload.Message.Text, -1)
+	fileIDs := extractFileIDs(payload.Message.Text)
 	client, auth := model.NewTraqClient(accessToken)
-	for _, v := range matches {
-		file, res, err := client.FileApi.GetFileMeta(auth, v[1])
+	for _, v := range fileIDs {
+		file, res, err := client.FileApi.GetFileMeta(auth, v)
 		if err != nil {
 			return err
 		}

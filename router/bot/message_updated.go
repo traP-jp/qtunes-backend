@@ -12,11 +12,11 @@ import (
 
 //MessageUpdatedHandler MessageUpdatedイベントを処理する
 func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageUpdatedPayload) error {
-	matches := embURLRegex.FindAllStringSubmatch(payload.Message.Text, -1)
+	fileIDs := extractFileIDs(payload.Message.Text)
 
 	client, auth := model.NewTraqClient(accessToken)
-	for _, v := range matches {
-		file, res, err := client.FileApi.GetFileMeta(auth, v[0])
+	for _, v := range fileIDs {
+		file, res, err := client.FileApi.GetFileMeta(auth, v)
 		if err != nil {
 			return err
 		}
@@ -42,8 +42,8 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 	}
 
 	newMap := map[string]struct{}{}
-	for _, v := range matches {
-		newMap[v[1]] = struct{}{}
+	for _, v := range fileIDs {
+		newMap[v] = struct{}{}
 	}
 	oldArr, err := model.GetFileIDsInMessage(ctx, payload.Message.ID)
 	if err != nil {
