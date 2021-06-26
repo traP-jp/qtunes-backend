@@ -12,6 +12,7 @@ import (
 
 	"github.com/antihax/optional"
 	"github.com/hackathon-21-spring-02/back-end/domain"
+	"github.com/jmoiron/sqlx"
 	traq "github.com/sapphi-red/go-traq"
 )
 
@@ -229,12 +230,14 @@ func InsertFile(ctx context.Context, file *File) error {
 	return nil
 }
 
-func DeleteFile(ctx context.Context, fileID string) error {
-	_, err := db.ExecContext(
-		ctx,
-		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.id = ?",
-		fileID,
-	)
+func DeleteFiles(ctx context.Context, fileIDs []string) error {
+	query := "DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.id IN (?)"
+	query, params, err := sqlx.In(query, fileIDs)
+	if err != nil {
+		return fmt.Errorf("Failed to delete files: %w", err)
+	}
+
+	_, err = db.ExecContext(ctx, query, params...)
 	if err != nil {
 		return err
 	}

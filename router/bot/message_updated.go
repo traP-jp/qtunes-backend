@@ -49,12 +49,15 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 	if err != nil {
 		return err
 	}
+
+	req := make([]string, 0, len(oldArr)) // 削除するメッセージの配列
 	for _, v := range oldArr {
 		if _, ok := newMap[v]; !ok {
-			if err := model.DeleteFile(ctx, v); err != nil {
-				return err
-			}
+			req = append(req, v)
 		}
+	}
+	if err := model.DeleteFiles(ctx, req); err != nil {
+		return err
 	}
 
 	return nil
