@@ -120,7 +120,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		return nil, err
 	}
 
-	myFavMap, err := getMyFavorites(ctx, userID)
+	myFavMap, err := getMyFavoritesMap(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,15 +128,20 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 	composerFiles := make([]*File, 0, len(files))
 	for _, file := range files {
 		if file.ComposerID == composerID {
-			composerFiles = append(composerFiles, &File{
-				ID:             file.ID,
-				Title:          file.Title,
-				ComposerID:     composerID,
-				ComposerName:   user.Name,
-				FavoriteCount:  file.FavoriteCount,
-				IsFavoriteByMe: myFavMap[file.ID],
-				CreatedAt:      file.CreatedAt,
-			})
+			f := &File{
+				ID:            file.ID,
+				Title:         file.Title,
+				ComposerID:    composerID,
+				ComposerName:  user.Name,
+				FavoriteCount: file.FavoriteCount,
+				CreatedAt:     file.CreatedAt,
+			}
+			if _, ok := myFavMap[file.ID]; ok {
+				f.IsFavoriteByMe = true
+			} else {
+				f.IsFavoriteByMe = false
+			}
+			composerFiles = append(composerFiles, f)
 		}
 	}
 

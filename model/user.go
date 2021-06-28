@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"sort"
 
 	"fmt"
 	"time"
@@ -80,14 +81,18 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		fileIdMap[v.ID] = v
 	}
 
-	myFavMap, err := getMyFavorites(ctx, userID)
+	myFavs, err := getMyFavorites(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
+	sort.Slice(myFavs, func(i, j int) bool {
+		return myFavs[i].CreatedAt.After(myFavs[j].CreatedAt)
+	})
+
 	res := make([]*File, 0, len(files))
-	for k := range myFavMap {
-		res = append(res, fileIdMap[k])
+	for _, v := range myFavs {
+		res = append(res, fileIdMap[v.SoundID])
 	}
 
 	return res, nil

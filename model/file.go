@@ -35,7 +35,7 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 		return nil, err
 	}
 	// DBから自分がお気に入りに追加しているかを取得
-	myFavMap, err := getMyFavorites(ctx, userID)
+	myFavMap, err := getMyFavoritesMap(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +47,8 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 			v.FavoriteCount = 0
 		}
 
-		if flag, ok := myFavMap[v.ID]; ok {
-			v.IsFavoriteByMe = flag
+		if _, ok := myFavMap[v.ID]; ok {
+			v.IsFavoriteByMe = true
 		} else {
 			v.IsFavoriteByMe = false
 		}

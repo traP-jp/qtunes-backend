@@ -39,16 +39,25 @@ func getFavoriteCount(ctx context.Context, fileID string) (int, error) {
 	return count, nil
 }
 
-func getMyFavorites(ctx context.Context, userID string) (map[string]bool, error) {
-	var myFavorites []string
-	err := db.SelectContext(ctx, &myFavorites, "SELECT sound_id FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
+func getMyFavorites(ctx context.Context, userID string) ([]Favorite, error) {
+	var myFavs []Favorite
+	err := db.SelectContext(ctx, &myFavs, "SELECT sound_id, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get Your Favorite Files: %w", err)
 	}
 
-	res := make(map[string]bool)
-	for _, v := range myFavorites {
-		res[v] = true
+	return myFavs, nil
+}
+
+func getMyFavoritesMap(ctx context.Context, userID string) (map[string]time.Time, error) {
+	myFavs, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]time.Time)
+	for _, v := range myFavs {
+		res[v.SoundID] = v.CreatedAt
 	}
 
 	return res, nil
