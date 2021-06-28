@@ -29,14 +29,14 @@ func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
 	return res, nil
 }
 
-func getFavoriteCount(ctx context.Context, fileID string) (*Favorite, error) {
-	favCnt := Favorite{}
-	err := db.GetContext(ctx, &favCnt, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
+func getFavoriteCount(ctx context.Context, fileID string) (int, error) {
+	var count int
+	err := db.GetContext(ctx, &count, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get favorite count: %w", err)
+		return -1, fmt.Errorf("Failed to get favorite count: %w", err)
 	}
 
-	return &favCnt, nil
+	return count, nil
 }
 
 func getMyFavorites(ctx context.Context, userID string) (map[string]bool, error) {

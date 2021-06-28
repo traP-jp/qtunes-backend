@@ -80,13 +80,13 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		fileIdMap[v.ID] = v
 	}
 
-	favsMap, err := getMyFavorites(ctx, userID)
+	myFavMap, err := getMyFavorites(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	res := make([]*File, 0, len(files))
-	for k := range favsMap {
+	for k := range myFavMap {
 		res = append(res, fileIdMap[k])
 	}
 

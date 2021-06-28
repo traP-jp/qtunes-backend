@@ -120,7 +120,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 		return nil, err
 	}
 
-	getMyFavorites, err := getMyFavorites(ctx, userID)
+	myFavMap, err := getMyFavorites(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 				ComposerID:     composerID,
 				ComposerName:   user.Name,
 				FavoriteCount:  file.FavoriteCount,
-				IsFavoriteByMe: getMyFavorites[file.ID],
+				IsFavoriteByMe: myFavMap[file.ID],
 				CreatedAt:      file.CreatedAt,
 			})
 		}
