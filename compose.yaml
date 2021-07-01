@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  server:
+  qtunes-server:
     build:
       context: ./
       dockerfile: ./Dockerfile
@@ -23,7 +23,7 @@ services:
     depends_on:
       - mariadb
 
-  mariadb:
+  qtunes-mariadb:
     image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: password
