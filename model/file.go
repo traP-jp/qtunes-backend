@@ -30,7 +30,7 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	}
 
 	// DBからお気に入りを取得
-	favCntMap, err := getFavoriteCounts(ctx)
+	favCountMap, err := getFavoriteCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +41,8 @@ func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	}
 
 	for _, v := range files {
-		if cnt, ok := favCntMap[v.ID]; ok {
-			v.FavoriteCount = cnt
+		if count, ok := favCountMap[v.ID]; ok {
+			v.FavoriteCount = count
 		} else {
 			v.FavoriteCount = 0
 		}
@@ -84,7 +84,7 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	}
 
 	// DBからお気に入りを取得
-	favCnt, err := getFavoriteCount(ctx, fileID)
+	favCount, err := getFavoriteCount(ctx, fileID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 		return nil, err
 	}
 
-	file.FavoriteCount = favCnt
+	file.FavoriteCount = favCount
 	file.IsFavoriteByMe = isFavoriteByMe
 
 	return &file, nil
