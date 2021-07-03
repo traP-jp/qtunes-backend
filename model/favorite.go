@@ -20,13 +20,13 @@ type FavoriteCount struct {
 }
 
 func getFavoriteCounts(ctx context.Context) (map[string]uint32, error) {
-	var favCnt []*FavoriteCount
-	err := db.SelectContext(ctx, &favCnt, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
+	var favCount []*FavoriteCount
+	err := db.SelectContext(ctx, &favCount, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite counts: %w", err)
 	}
 	res := make(map[string]uint32)
-	for _, v := range favCnt {
+	for _, v := range favCount {
 		res[v.SoundID] = v.Count
 	}
 
@@ -34,13 +34,13 @@ func getFavoriteCounts(ctx context.Context) (map[string]uint32, error) {
 }
 
 func getFavoriteCount(ctx context.Context, fileID string) (*FavoriteCount, error) {
-	favCnt := FavoriteCount{}
-	err := db.GetContext(ctx, &favCnt, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
+	favCount := FavoriteCount{}
+	err := db.GetContext(ctx, &favCount, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite count: %w", err)
 	}
 
-	return &favCnt, nil
+	return &favCount, nil
 }
 
 func getMyFavorites(ctx context.Context, userID string) (map[string]bool, error) {
