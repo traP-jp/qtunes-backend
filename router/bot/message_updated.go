@@ -34,7 +34,6 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 				MessageID:    payload.Message.ID,
 				CreatedAt:    payload.Message.CreatedAt,
 			})
-
 		}
 	}
 
