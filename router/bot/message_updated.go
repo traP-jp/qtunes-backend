@@ -35,11 +35,11 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 				CreatedAt:    payload.Message.CreatedAt,
 			})
 
-			err = model.InsertFiles(ctx, insertReq)
-			if err != nil {
-				return fmt.Errorf("failed to insert file: %w", err)
-			}
 		}
+	}
+
+	if err := model.InsertFiles(ctx, insertReq); err != nil {
+		return fmt.Errorf("failed to insert file: %w", err)
 	}
 
 	newMap := map[string]struct{}{}

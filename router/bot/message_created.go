@@ -34,12 +34,11 @@ func MessageCreatedHandler(ctx context.Context, accessToken string, payload *tra
 				MessageID:    payload.Message.ID,
 				CreatedAt:    payload.Message.CreatedAt,
 			})
-
-			err = model.InsertFiles(ctx, insertReq)
-			if err != nil {
-				return fmt.Errorf("failed to insert file: %w", err)
-			}
 		}
+	}
+
+	if err := model.InsertFiles(ctx, insertReq); err != nil {
+		return fmt.Errorf("failed to insert file: %w", err)
 	}
 
 	return nil
