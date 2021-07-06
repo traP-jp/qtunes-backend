@@ -2,11 +2,10 @@ package model
 
 import (
 	"context"
+	"sort"
 
 	"fmt"
 	"time"
-
-	"github.com/hackathon-21-spring-02/back-end/domain"
 )
 
 type User struct {
@@ -16,8 +15,7 @@ type User struct {
 }
 
 type UsersMe struct {
-	ID            string   `json:"id"  db:"id"`
-	Name          string   `json:"name"  db:"name"`
+	User
 	FavoriteFiles []string `json:"favorite_files" db:"sound_id"`
 }
 
@@ -72,25 +70,29 @@ func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*User
 	return &usersMe, nil
 }
 
-func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*domain.File, error) {
-	files, err := GetFiles(ctx, accessToken, userID)
+func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string) ([]*File, error) {
+	files, err := GetFiles(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	fileIdMap := make(map[string]*domain.File)
+	fileIdMap := make(map[string]*File)
 	for _, v := range files {
 		fileIdMap[v.ID] = v
 	}
 
-	favsMap, err := getMyFavorites(ctx, userID)
+	myFavs, err := getMyFavorites(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	res := make([]*domain.File, 0, len(files))
-	for k := range favsMap {
-		res = append(res, fileIdMap[k])
+	sort.Slice(myFavs, func(i, j int) bool {
+		return myFavs[i].CreatedAt.After(myFavs[j].CreatedAt)
+	})
+
+	res := make([]*File, 0, len(files))
+	for _, v := range myFavs {
+		res = append(res, fileIdMap[v.SoundID])
 	}
 
 	return res, nil

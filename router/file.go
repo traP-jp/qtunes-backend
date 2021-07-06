@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type favorite struct {
+type editFavoriteRequest struct {
 	Favorite bool
 }
 
@@ -20,9 +20,8 @@ func getFilesHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	files, err := model.GetFiles(ctx, accessToken, userID)
+	files, err := model.GetFiles(ctx, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -37,9 +36,8 @@ func getRandomFileHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	file, err := model.GetRandomFile(ctx, accessToken, userID)
+	file, err := model.GetRandomFile(ctx, userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -55,41 +53,13 @@ func getFileHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
-	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-	file, err := model.GetFile(ctx, accessToken, userID, fileID)
+	file, err := model.GetFile(ctx, userID, fileID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
-}
-
-// putFileFavoriteHandler PUT /files/:fileID/favorite
-func putFileFavoriteHandler(c echo.Context) error {
-	ctx := c.Request().Context()
-	fileID := c.Param("fileID")
-	fav := favorite{}
-	err := c.Bind(&fav)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err))
-	}
-
-	sess, err := session.Get("sessions", c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
-	}
-	accessToken := sess.Values["accessToken"].(string)
-	userID := sess.Values["id"].(string)
-	err = model.ToggleFileFavorite(ctx, accessToken, userID, fileID, fav.Favorite)
-	if err == model.DBErrs["NoChange"] {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
-	}
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	return echo.NewHTTPError(http.StatusOK)
 }
 
 // getFileDownloadHandler GET /files/:fileID/download
@@ -109,4 +79,30 @@ func getFileDownloadHandler(c echo.Context) error {
 	}
 
 	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
+}
+
+// putFileFavoriteHandler PUT /files/:fileID/favorite
+func putFileFavoriteHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	fileID := c.Param("fileID")
+	fav := editFavoriteRequest{}
+	err := c.Bind(&fav)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err))
+	}
+
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+	}
+	userID := sess.Values["id"].(string)
+	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
+	if err == model.DBErrs["NoChange"] {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK)
 }

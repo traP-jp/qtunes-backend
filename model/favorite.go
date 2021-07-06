@@ -8,24 +8,20 @@ import (
 )
 
 type Favorite struct {
-	UserID     string    `json:"user_id"  db:"user_id"`
-	ComposerID string    `json:"composer_id"  db:"composer_id"`
-	SoundID    string    `json:"sound_id"  db:"sound_id"`
-	CreatedAt  time.Time `json:"created_at"  db:"created_at"`
+	UserID     string    `db:"user_id"`
+	ComposerID string    `db:"composer_id"`
+	SoundID    string    `db:"sound_id"`
+	CreatedAt  time.Time `db:"created_at"`
+	Count      int
 }
 
-type FavoriteCount struct {
-	SoundID string `db:"sound_id"`
-	Count   uint32 `db:"count"`
-}
-
-func getFavoriteCounts(ctx context.Context) (map[string]uint32, error) {
-	var favCount []*FavoriteCount
+func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
+	var favCount []*Favorite
 	err := db.SelectContext(ctx, &favCount, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get favorite counts: %w", err)
 	}
-	res := make(map[string]uint32)
+	res := make(map[string]int)
 	for _, v := range favCount {
 		res[v.SoundID] = v.Count
 	}
@@ -33,26 +29,35 @@ func getFavoriteCounts(ctx context.Context) (map[string]uint32, error) {
 	return res, nil
 }
 
-func getFavoriteCount(ctx context.Context, fileID string) (*FavoriteCount, error) {
-	favCount := FavoriteCount{}
-	err := db.GetContext(ctx, &favCount, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
+func getFavoriteCount(ctx context.Context, fileID string) (int, error) {
+	var count int
+	err := db.GetContext(ctx, &count, "SELECT COUNT( composer_id ) AS count FROM favorites WHERE sound_id = ? LIMIT 1", fileID)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get favorite count: %w", err)
+		return 0, fmt.Errorf("Failed to get favorite count: %w", err)
 	}
 
-	return &favCount, nil
+	return count, nil
 }
 
-func getMyFavorites(ctx context.Context, userID string) (map[string]bool, error) {
-	var myFavorites []string
-	err := db.SelectContext(ctx, &myFavorites, "SELECT sound_id FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
+func getMyFavorites(ctx context.Context, userID string) ([]Favorite, error) {
+	var myFavs []Favorite
+	err := db.SelectContext(ctx, &myFavs, "SELECT sound_id, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get Your Favorite Files: %w", err)
 	}
 
-	res := make(map[string]bool)
-	for _, v := range myFavorites {
-		res[v] = true
+	return myFavs, nil
+}
+
+func getMyFavoritesMap(ctx context.Context, userID string) (map[string]time.Time, error) {
+	myFavs, err := getMyFavorites(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]time.Time)
+	for _, v := range myFavs {
+		res[v.SoundID] = v.CreatedAt
 	}
 
 	return res, nil
