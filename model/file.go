@@ -218,13 +218,10 @@ func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error
 }
 
 func InsertFiles(ctx context.Context, files []*File) error {
-	query := `
-		INSERT IGNORE INTO files (id, title, composer_id, composer_name, message_id, created_at)
-		VALUES (:id, :title, :composer_id, :composer_name, :message_id, :created_at)`
-
 	_, err := db.NamedExecContext(
 		ctx,
-		query,
+		`INSERT IGNORE INTO files (id, title, composer_id, composer_name, message_id, created_at)
+		VALUES (:id, :title, :composer_id, :composer_name, :message_id, :created_at)`
 		files,
 	)
 	if err != nil {
