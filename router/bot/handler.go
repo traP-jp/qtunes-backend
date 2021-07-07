@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	traqbot "github.com/traPtitech/traq-bot"
 )
@@ -26,16 +25,11 @@ func Handler(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	sess, err := session.Get("sessions", c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
-	}
-	accessToken := sess.Values["accessToken"].(string)
 
 	switch event {
 	case "MESSAGE_CREATED":
 		payload := &traqbot.MessageCreatedPayload{}
-		err = c.Bind(payload)
+		err := c.Bind(payload)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
 		}
@@ -46,7 +40,7 @@ func Handler(c echo.Context) error {
 		}
 	case "MESSAGE_UPDATED":
 		payload := &traqbot.MessageUpdatedPayload{}
-		err = c.Bind(payload)
+		err := c.Bind(payload)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
 		}
@@ -57,12 +51,12 @@ func Handler(c echo.Context) error {
 		}
 	case "MESSAGE_DELETED":
 		payload := &traqbot.MessageDeletedPayload{}
-		err = c.Bind(payload)
+		err := c.Bind(payload)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
 		}
 
-		err = MessageDeletedHandler(ctx, accessToken, payload)
+		err = MessageDeletedHandler(ctx, payload)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
 		}

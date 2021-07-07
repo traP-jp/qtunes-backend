@@ -8,11 +8,15 @@ import (
 
 var (
 	verificationToken = os.Getenv("BOT_VERIFICATION_TOKEN")
+	accessToken       = os.Getenv("BOT_ACCESS_TOKEN")
 )
 
 func init() {
 	if verificationToken == "" {
 		panic(errors.New("verification token should not be empty."))
+	}
+	if accessToken == "" {
+		panic(errors.New("access token should not be empty."))
 	}
 }
 
