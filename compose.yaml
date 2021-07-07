@@ -11,6 +11,7 @@ services:
       CLIENT_ID: ${CLIENT_ID}
       CLIENT_SECRET: ${CLIENT_SECRET}
       BOT_VERIFICATION_TOKEN: ${BOT_VERIFICATION_TOKEN}
+      BOT_ACCESS_TOKEN: ${BOT_ACCESS_TOKEN}
       MARIADB_HOSTNAME: back-end_mariadb_1
     volumes:
       - ./:/go/src/github.com/hackathon-21-spring-02/back-end
