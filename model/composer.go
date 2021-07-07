@@ -133,6 +133,7 @@ func GetComposerFiles(ctx context.Context, accessToken string, composerID string
 				Title:         file.Title,
 				ComposerID:    composerID,
 				ComposerName:  user.Name,
+				MessageID:     file.MessageID,
 				FavoriteCount: file.FavoriteCount,
 				CreatedAt:     file.CreatedAt,
 			}
