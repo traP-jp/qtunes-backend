@@ -14,6 +14,7 @@ require (
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/sapphi-red/go-traq v0.0.0-20210619185243-f487eb63bd8c
 	github.com/srinathgs/mysqlstore v0.0.0-20200417050510-9cbb9420fc4c
+	github.com/traPtitech/traq-bot v1.0.2
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1 // indirect

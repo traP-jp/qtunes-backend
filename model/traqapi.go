@@ -6,7 +6,7 @@ import (
 	traq "github.com/sapphi-red/go-traq"
 )
 
-func newClient(accessToken string) (*traq.APIClient, context.Context) {
+func NewTraqClient(accessToken string) (*traq.APIClient, context.Context) {
 	client := traq.NewAPIClient(traq.NewConfiguration())
 	auth := context.WithValue(context.Background(), traq.ContextAccessToken, accessToken)
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/hackathon-21-spring-02/back-end/router/bot"
 	sess "github.com/hackathon-21-spring-02/back-end/session"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -119,6 +120,9 @@ func SetRouting(sess sess.Session, env string) {
 			apiOAuth.GET("/generate/code", postGenerateCodeHandler)
 			apiOAuth.POST("/logout", postLogoutHandler, userAuthMiddleware)
 		}
+
+		// Botのリクエストの処理
+		api.Any("/bot", bot.Handler)
 	}
 
 	port := os.Getenv("PORT")

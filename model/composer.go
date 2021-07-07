@@ -19,7 +19,7 @@ type Composer struct {
 }
 
 func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) 
 }
 
 func GetComposer(ctx context.Context, accessToken string, composerID string) (*Composer, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	user, res, err := client.UserApi.GetUser(auth, composerID)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*C
 }
 
 func GetComposerByName(ctx context.Context, accessToken string, name string) (*Composer, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{Name: optional.NewString(name)})
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*C
 }
 
 func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*File, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	user, res, err := client.UserApi.GetUser(auth, composerID)
 	if err != nil {
 		return nil, err

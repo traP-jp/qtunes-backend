@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	traq "github.com/sapphi-red/go-traq"
 )
 
@@ -101,7 +102,7 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 }
 
 func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
-	client, auth := newClient(accessToken)
+	client, auth := NewTraqClient(accessToken)
 	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
 		return nil, nil, err
@@ -128,6 +129,57 @@ func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favor
 		if err := deleteFileFavorite(ctx, userID, fileID); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error) {
+	var files []string
+	err := db.SelectContext(ctx, &files, "SELECT id FROM files WHERE message_id = ?", messageID)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get files: %w", err)
+	}
+	return files, nil
+}
+
+func InsertFiles(ctx context.Context, files []*File) error {
+	_, err := db.NamedExecContext(
+		ctx,
+		`INSERT IGNORE INTO files (id, title, composer_id, composer_name, message_id, created_at)
+		VALUES (:id, :title, :composer_id, :composer_name, :message_id, :created_at)`,
+		files,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteFiles(ctx context.Context, fileIDs []string) error {
+	query := "DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.id IN (?)"
+	query, params, err := sqlx.In(query, fileIDs)
+	if err != nil {
+		return fmt.Errorf("Failed to delete files: %w", err)
+	}
+
+	_, err = db.ExecContext(ctx, query, params...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteFilesFromMessageId(ctx context.Context, messageID string) error {
+	_, err := db.ExecContext(
+		ctx,
+		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.message_id = ?",
+		messageID,
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil
