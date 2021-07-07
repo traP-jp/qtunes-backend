@@ -16,7 +16,7 @@ const (
 func Handler(c echo.Context) error {
 	token := c.Request().Header.Get(botTokenHeader)
 	if token != verificationToken {
-		return c.NoContent(http.StatusForbidden)
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
 	event := c.Request().Header.Get(botEventHeader)
