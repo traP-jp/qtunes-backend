@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserMe'
+                $ref: '#/components/schemas/UsersMe'
         404:
           description: Not Found
       operationId: getMe
@@ -175,7 +175,7 @@ paths:
         404:
           description: Not Found
       operationId: getFile
-  /files/{fileID}/download:
+  /files/{fileId}/download:
     parameters:
       - $ref: '#/components/parameters/fileId'
     get:
@@ -205,7 +205,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Favorite'
+              $ref: '#/components/schemas/EditFavorite'
       responses:
         200:
           description: OK
@@ -313,8 +313,8 @@ components:
       required:
         - id
         - name
-    UserMe:
-      title: UserMe
+    UsersMe:
+      title: UsersMe
       type: object
       description: 自分の情報
       properties:
@@ -329,17 +329,13 @@ components:
         favoriteFiles:
           type: array
           items:
-            $ref: '#/components/schemas/FavoriteFile'
+            type: string
+            format: uuid
           description: お気に入り曲のUUIDの配列
       required:
         - id
         - name
         - favoriteFiles
-    FavoriteFile:
-      title: FavoriteFile
-      type: string
-      format: uuid
-      description: お気に入り曲のUUID
     File:
       title: File
       type: object
@@ -360,6 +356,10 @@ components:
           type: string
           pattern: '^[a-zA-Z0-9_-]{1,32}$'
           description: ファイル投稿者名
+        message_id:
+          type: string
+          format: uuid
+          description: 投稿元メッセージUUID
         favorite_count:
           type: integer
           description: お気に入り数
@@ -375,13 +375,14 @@ components:
         - title
         - composer_id
         - composer_name
+        - message_id
         - favorite_count
         - is_favorite_by_me
         - created_at
-    Favorite:
-      title: Favorite
+    EditFavorite:
+      title: EditFavorite
       type: object
-      description: お気に入りかどうか
+      description: ファイルのお気に入り情報を変更する
       properties:
         favorite:
           type: boolean
