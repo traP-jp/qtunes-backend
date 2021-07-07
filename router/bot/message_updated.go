@@ -50,13 +50,13 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		return err
 	}
 
-	deleteFields := make([]string, 0, len(oldArr))
+	deleteFileIds := make([]string, 0, len(oldArr))
 	for _, v := range oldArr {
 		if _, ok := newMap[v]; !ok {
-			deleteFields = append(deleteFields, v)
+			deleteFileIds = append(deleteFileIds, v)
 		}
 	}
-	if err := model.DeleteFiles(ctx, deleteFields); err != nil {
+	if err := model.DeleteFiles(ctx, deleteFileIds); err != nil {
 		return err
 	}
 
