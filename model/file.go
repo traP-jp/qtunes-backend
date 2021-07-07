@@ -84,21 +84,19 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
 
-	if userID == "" {
-		// DBからお気に入りを取得
-		favCount, err := getFavoriteCount(ctx, fileID)
-		if err != nil {
-			return nil, err
-		}
-		// DBから自分がお気に入りに追加しているかを取得
-		isFavoriteByMe, err := getMyFavorite(ctx, userID, fileID)
-		if err != nil {
-			return nil, err
-		}
-
-		file.FavoriteCount = favCount
-		file.IsFavoriteByMe = isFavoriteByMe
+	// DBからお気に入りを取得
+	favCount, err := getFavoriteCount(ctx, fileID)
+	if err != nil {
+		return nil, err
 	}
+	// DBから自分がお気に入りに追加しているかを取得
+	isFavoriteByMe, err := getMyFavorite(ctx, userID, fileID)
+	if err != nil {
+		return nil, err
+	}
+
+	file.FavoriteCount = favCount
+	file.IsFavoriteByMe = isFavoriteByMe
 
 	return &file, nil
 }
