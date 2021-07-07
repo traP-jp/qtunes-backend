@@ -375,6 +375,7 @@ components:
         - title
         - composer_id
         - composer_name
+        - message_id
         - favorite_count
         - is_favorite_by_me
         - created_at
