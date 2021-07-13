@@ -101,17 +101,22 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	return &file, nil
 }
 
-func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
+func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *File, *http.Response, error) {
 	client, auth := NewTraqClient(accessToken)
 	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+		return nil, nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
-	return file, res, nil
+	meta, err := GetFile(ctx, "", fileID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return file, meta, res, nil
 }
 
 func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favorite bool) error {
