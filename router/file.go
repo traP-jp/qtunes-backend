@@ -97,7 +97,7 @@ func putFileFavoriteHandler(c echo.Context) error {
 	}
 	userID := sess.Values["id"].(string)
 	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
-	if err == model.DBErrs["NoChange"] {
+	if err == ErrNoChange { //TODO: modelで操作
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 	if err != nil {

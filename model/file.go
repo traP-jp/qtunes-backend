@@ -26,6 +26,9 @@ type File struct {
 func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	var files []*File
 	err := db.SelectContext(ctx, &files, "SELECT * FROM files ORDER BY created_at DESC")
+	if err == ErrNoRows {
+		return []*File{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}

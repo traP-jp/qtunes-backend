@@ -17,3 +17,7 @@ down:
 .PHONY: lint
 lint:
 	@docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:latest golangci-lint run
+
+.PHONY: db-dev
+db-dev:
+	@docker compose exec mariadb mariadb -uroot -ppassword 21hack02
