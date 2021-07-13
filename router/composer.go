@@ -16,11 +16,10 @@ func getComposersHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err))
 	}
-
 	accessToken := sess.Values["accessToken"].(string)
 	composers, err := model.GetComposers(ctx, accessToken)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return convertError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, composers)
@@ -34,11 +33,10 @@ func getComposerHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err))
 	}
-
 	accessToken := sess.Values["accessToken"].(string)
 	res, err := model.GetComposer(ctx, accessToken, composerID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get Composer: %w", err))
+		return convertError(err)
 	}
 	return echo.NewHTTPError(http.StatusOK, res)
 }
@@ -53,15 +51,15 @@ func getComposerFilesHandler(c echo.Context) error {
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
-
 	res, err := model.GetComposerFiles(ctx, accessToken, composerID, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+		return convertError(err)
 	}
+
 	return echo.NewHTTPError(http.StatusOK, res)
 }
 
-// getComposerByNameHandler GET /composers/name/:composerID
+// getComposerByNameHandler GET /composers/name/:composerName
 func getComposerByNameHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	name := c.Param("composerName")
@@ -72,7 +70,8 @@ func getComposerByNameHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 	res, err := model.GetComposerByName(ctx, accessToken, name)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get Composer: %w", err))
+		return convertError(err)
 	}
+
 	return echo.NewHTTPError(http.StatusOK, res)
 }

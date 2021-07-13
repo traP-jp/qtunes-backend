@@ -23,7 +23,7 @@ func getFilesHandler(c echo.Context) error {
 	userID := sess.Values["id"].(string)
 	files, err := model.GetFiles(ctx, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return convertError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, files)
@@ -39,7 +39,7 @@ func getRandomFileHandler(c echo.Context) error {
 	userID := sess.Values["id"].(string)
 	file, err := model.GetRandomFile(ctx, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return convertError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
@@ -56,7 +56,7 @@ func getFileHandler(c echo.Context) error {
 	userID := sess.Values["id"].(string)
 	file, err := model.GetFile(ctx, userID, fileID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return convertError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
@@ -75,7 +75,7 @@ func getFileDownloadHandler(c echo.Context) error {
 
 	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+		return convertError(err)
 	}
 
 	return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
@@ -97,11 +97,8 @@ func putFileFavoriteHandler(c echo.Context) error {
 	}
 	userID := sess.Values["id"].(string)
 	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
-	if err == ErrNoChange { //TODO: modelで操作
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
-	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return convertError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK)
