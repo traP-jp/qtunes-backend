@@ -74,6 +74,7 @@ func getFileDownloadHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 
 	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
+	defer file.Close()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
 	}
