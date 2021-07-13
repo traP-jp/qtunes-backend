@@ -1,11 +1,10 @@
 package model
 
 import (
-	"database/sql"
 	"errors"
 )
 
 var (
-	ErrNoRows   = sql.ErrNoRows
+	ErrNotFound = errors.New("Not Found")
 	ErrNoChange = errors.New("No Change")
 )

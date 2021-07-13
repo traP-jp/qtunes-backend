@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -65,7 +66,7 @@ func getMyFavoritesMap(ctx context.Context, userID string) (map[string]time.Time
 func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, error) {
 	myFavorite := ""
 	err := db.GetContext(ctx, &myFavorite, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
-	if err == ErrNoRows {
+	if err == sql.ErrNoRows {
 		return false, nil
 	}
 	if err != nil {
@@ -77,7 +78,7 @@ func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, err
 func insertFileFavorite(ctx context.Context, userID string, composerID string, fileID string) error {
 	var _flag string
 	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
-	if err != nil && err != ErrNoRows {
+	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)
 	}
 	if err == nil { // 既にfavoriteしている
@@ -95,7 +96,7 @@ func insertFileFavorite(ctx context.Context, userID string, composerID string, f
 func deleteFileFavorite(ctx context.Context, userID, fileID string) error {
 	var _flag string
 	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
-	if err == ErrNoRows { // 元々favoriteしていない
+	if err == sql.ErrNoRows { // 元々favoriteしていない
 		return ErrNoChange
 	}
 	if err != nil {
