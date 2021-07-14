@@ -73,17 +73,21 @@ func getFileDownloadHandler(c echo.Context) error {
 	}
 	accessToken := sess.Values["accessToken"].(string)
 
-	file, meta, res, err := model.GetFileDownload(ctx, fileID, accessToken)
-	defer file.Close()
+	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+	}
+	defer file.Close()
+
+	info, err := file.Stat()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file information: %w", err))
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, res.Header.Get("Content-Type"))
 	c.Response().Header().Set("Cache-Control", "private, max-age=31536000") // 1年間キャッシュ
-	http.ServeContent(c.Response(), c.Request(), meta.Title, meta.CreatedAt, file)
-	// return c.Stream(http.StatusOK, res.Header.Get("Content-Type"), file)
-	return nil
+	http.ServeContent(c.Response(), c.Request(), info.Name(), info.ModTime(), file)
+	return echo.NewHTTPError(http.StatusOK)
 }
 
 // putFileFavoriteHandler PUT /files/:fileID/favorite
