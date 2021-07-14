@@ -63,7 +63,7 @@ func getMyFavoritesMap(ctx context.Context, userID string) (map[string]time.Time
 	return res, nil
 }
 
-func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, error) {
+func getMyFavorite(ctx context.Context, userID, fileID string) (bool, error) {
 	myFavorite := ""
 	err := db.GetContext(ctx, &myFavorite, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
 	if err == sql.ErrNoRows {
@@ -75,9 +75,9 @@ func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, err
 	return (myFavorite != ""), nil
 }
 
-func insertFileFavorite(ctx context.Context, userID string, composerID string, fileID string) error {
+func insertFileFavorite(ctx context.Context, args Favorite) error {
 	var _flag string
-	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
+	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", args.UserID, args.SoundID)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)
 	}
@@ -85,7 +85,7 @@ func insertFileFavorite(ctx context.Context, userID string, composerID string, f
 		return ErrNoChange
 	}
 
-	_, err = db.ExecContext(ctx, "INSERT INTO favorites (user_id, composer_id, sound_id) VALUES (?, ?, ?)", userID, composerID, fileID)
+	_, err = db.ExecContext(ctx, "INSERT INTO favorites (user_id, composer_id, sound_id) VALUES (?, ?, ?)", args.UserID, args.ComposerID, args.SoundID)
 	if err != nil {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)
 	}
