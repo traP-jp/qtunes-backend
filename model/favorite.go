@@ -15,6 +15,12 @@ type Favorite struct {
 	Count      int
 }
 
+type FavoriteInfo struct {
+	UserID     string
+	ComposerID string
+	SoundID    string
+}
+
 func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
 	var favCount []*Favorite
 	err := db.SelectContext(ctx, &favCount, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
@@ -78,7 +84,7 @@ func getMyFavorite(ctx context.Context, userID, fileID string) (bool, error) {
 	return (myFavorite != ""), nil
 }
 
-func insertFileFavorite(ctx context.Context, info Favorite) error {
+func insertFileFavorite(ctx context.Context, info FavoriteInfo) error {
 	var check int
 	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", info.UserID, info.SoundID)
 	if err != nil {
@@ -96,7 +102,7 @@ func insertFileFavorite(ctx context.Context, info Favorite) error {
 	return nil
 }
 
-func deleteFileFavorite(ctx context.Context, info Favorite) error {
+func deleteFileFavorite(ctx context.Context, info FavoriteInfo) error {
 	var check int
 	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", info.UserID, info.SoundID)
 	if err != nil {

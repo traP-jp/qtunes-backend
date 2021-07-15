@@ -125,7 +125,7 @@ func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File,
 }
 
 func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite bool) error {
-	info := Favorite{
+	info := FavoriteInfo{
 		UserID:  userID,
 		SoundID: fileID,
 	}
