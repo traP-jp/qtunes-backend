@@ -13,7 +13,7 @@ func getUsersHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	users, err := model.GetUsers(ctx)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, users)
@@ -30,7 +30,7 @@ func getUserHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 	user, err := model.GetUser(ctx, accessToken, userID)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, user)
@@ -47,7 +47,7 @@ func getUsersMeHandler(c echo.Context) error {
 	myUserID := sess.Values["id"].(string)
 	res, err := model.GetUsersMe(ctx, accessToken, myUserID)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)
@@ -64,7 +64,7 @@ func getUsersMeFavoritesHandler(c echo.Context) error {
 	userID := sess.Values["id"].(string)
 	res, err := model.GetUsersMeFavorites(ctx, accessToken, userID)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)

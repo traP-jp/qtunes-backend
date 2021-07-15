@@ -18,7 +18,7 @@ func getComposersHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 	composers, err := model.GetComposers(ctx, accessToken)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, composers)
@@ -35,7 +35,7 @@ func getComposerHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 	res, err := model.GetComposer(ctx, accessToken, composerID)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)
@@ -53,7 +53,7 @@ func getComposerFilesHandler(c echo.Context) error {
 	userID := sess.Values["id"].(string)
 	res, err := model.GetComposerFiles(ctx, accessToken, composerID, userID)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)
@@ -70,7 +70,7 @@ func getComposerByNameHandler(c echo.Context) error {
 	accessToken := sess.Values["accessToken"].(string)
 	res, err := model.GetComposerByName(ctx, accessToken, name)
 	if err != nil {
-		return handleError(err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)

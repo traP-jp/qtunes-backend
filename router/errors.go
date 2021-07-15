@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func handleError(err error) error {
+func generateEchoError(err error) error {
 	if errors.Is(err, model.ErrNotFound) {
 		return echo.NewHTTPError(http.StatusNotFound, "Not Found")
 	} else if errors.Is(err, model.ErrNoChange) {
