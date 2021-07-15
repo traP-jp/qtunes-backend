@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
@@ -14,7 +13,7 @@ func getUsersHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	users, err := model.GetUsers(ctx)
 	if err != nil {
-		return convertError(err)
+		return handleError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, users)
@@ -26,12 +25,12 @@ func getUserHandler(c echo.Context) error {
 	userID := c.Param("userID")
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	user, err := model.GetUser(ctx, accessToken, userID)
 	if err != nil {
-		return convertError(err)
+		return handleError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, user)
@@ -42,13 +41,13 @@ func getUsersMeHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	myUserID := sess.Values["id"].(string)
 	res, err := model.GetUsersMe(ctx, accessToken, myUserID)
 	if err != nil {
-		return convertError(err)
+		return handleError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)
@@ -59,13 +58,13 @@ func getUsersMeFavoritesHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 	accessToken := sess.Values["accessToken"].(string)
 	userID := sess.Values["id"].(string)
 	res, err := model.GetUsersMeFavorites(ctx, accessToken, userID)
 	if err != nil {
-		return convertError(err)
+		return handleError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, res)

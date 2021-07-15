@@ -31,45 +31,45 @@ func Handler(c echo.Context) error {
 		payload := &traqbot.MessageCreatedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageCreatedHandler(ctx, accessToken, payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "MESSAGE_UPDATED":
 		payload := &traqbot.MessageUpdatedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageUpdatedHandler(ctx, accessToken, payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "MESSAGE_DELETED":
 		payload := &traqbot.MessageDeletedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageDeletedHandler(ctx, payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "PING":
 		payload := &traqbot.PingPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = PingHandler(payload)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	}
 
