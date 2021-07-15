@@ -74,6 +74,9 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 
 	var file File
 	err = db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1 OFFSET ?", r)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +87,9 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	var file File
 	err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
@@ -127,6 +133,9 @@ func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite b
 	if isFavorite {
 		var composerID string
 		err := db.GetContext(ctx, &composerID, "SELECT conposer_id FROM files WHERE id = ? LIMIT 1", fileID)
+		if err == sql.ErrNoRows {
+			return ErrNotFound
+		}
 		if err != nil {
 			return fmt.Errorf("Failed to get files: %w", err)
 		}
@@ -147,6 +156,9 @@ func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite b
 func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error) {
 	var files []string
 	err := db.SelectContext(ctx, &files, "SELECT id FROM files WHERE message_id = ?", messageID)
+	if err == sql.ErrNoRows {
+		return []string{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
