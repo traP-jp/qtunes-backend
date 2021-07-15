@@ -102,7 +102,7 @@ func deleteFileFavorite(ctx context.Context, info Favorite) error {
 	if err != nil {
 		return fmt.Errorf("Failed to remove the file from your favorite: %w", err)
 	}
-	if check == 1 { // 元からお気に入りされていないとき
+	if check == 0 { // 元からお気に入りされていないとき
 		return ErrNoChange
 	}
 
