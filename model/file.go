@@ -119,23 +119,24 @@ func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File,
 }
 
 func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite bool) error {
+	info := Favorite{
+		UserID:  userID,
+		SoundID: fileID,
+	}
+
 	if isFavorite {
-		var file File
-		err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
+		var composerID string
+		err := db.GetContext(ctx, &composerID, "SELECT conposer_id FROM files WHERE id = ? LIMIT 1", fileID)
 		if err != nil {
 			return fmt.Errorf("Failed to get files: %w", err)
 		}
 
-		args := Favorite{
-			UserID:     userID,
-			ComposerID: file.ComposerID,
-			SoundID:    fileID,
-		}
-		if err := insertFileFavorite(ctx, args); err != nil {
+		info.ComposerID = composerID
+		if err := insertFileFavorite(ctx, info); err != nil {
 			return err
 		}
 	} else {
-		if err := deleteFileFavorite(ctx, userID, fileID); err != nil {
+		if err := deleteFileFavorite(ctx, info); err != nil {
 			return err
 		}
 	}
