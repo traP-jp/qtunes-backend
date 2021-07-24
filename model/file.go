@@ -125,7 +125,7 @@ func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File,
 }
 
 func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite bool) error {
-	info := FavoriteInfo{
+	opts := FavoriteOptions{
 		UserID:  userID,
 		SoundID: fileID,
 	}
@@ -140,12 +140,12 @@ func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite b
 			return fmt.Errorf("Failed to get files: %w", err)
 		}
 
-		info.ComposerID = composerID
-		if err := insertFileFavorite(ctx, info); err != nil {
+		opts.ComposerID = composerID
+		if err := insertFileFavorite(ctx, opts); err != nil {
 			return err
 		}
 	} else {
-		if err := deleteFileFavorite(ctx, info); err != nil {
+		if err := deleteFileFavorite(ctx, opts); err != nil {
 			return err
 		}
 	}
