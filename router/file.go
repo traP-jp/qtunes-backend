@@ -1,7 +1,7 @@
 package router
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
@@ -10,7 +10,7 @@ import (
 )
 
 type editFavoriteRequest struct {
-	Favorite bool
+	Favorite bool `json:"favorite"`
 }
 
 // getFilesHandler GET /files
@@ -18,12 +18,12 @@ func getFilesHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 	userID := sess.Values["id"].(string)
 	files, err := model.GetFiles(ctx, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, files)
@@ -34,12 +34,12 @@ func getRandomFileHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 	userID := sess.Values["id"].(string)
 	file, err := model.GetRandomFile(ctx, userID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
@@ -51,12 +51,12 @@ func getFileHandler(c echo.Context) error {
 	fileID := c.Param("fileID")
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+		return errSessionNotFound(err)
 	}
 	userID := sess.Values["id"].(string)
 	file, err := model.GetFile(ctx, userID, fileID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK, file)
@@ -69,13 +69,13 @@ func getFileDownloadHandler(c echo.Context) error {
 
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get session: %w", err))
+		return errSessionNotFound(err)
 	}
 	accessToken := sess.Values["accessToken"].(string)
 
 	file, res, err := model.GetFileDownload(ctx, fileID, accessToken)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file: %w", err))
+		return generateEchoError(err)
 	}
 	defer file.Close()
 
@@ -97,20 +97,18 @@ func putFileFavoriteHandler(c echo.Context) error {
 	fav := editFavoriteRequest{}
 	err := c.Bind(&fav)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err))
+		return errBind(err)
 	}
+	log.Printf("%+v", fav)
 
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+		return errSessionNotFound(err)
 	}
 	userID := sess.Values["id"].(string)
 	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
-	if err == model.DBErrs["NoChange"] {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
-	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return generateEchoError(err)
 	}
 
 	return echo.NewHTTPError(http.StatusOK)

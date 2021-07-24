@@ -15,6 +15,12 @@ type Favorite struct {
 	Count      int
 }
 
+type FavoriteOptions struct {
+	UserID     string
+	ComposerID string
+	SoundID    string
+}
+
 func getFavoriteCounts(ctx context.Context) (map[string]int, error) {
 	var favCount []*Favorite
 	err := db.SelectContext(ctx, &favCount, "SELECT sound_id, COUNT( sound_id ) AS count FROM favorites GROUP BY sound_id")
@@ -42,6 +48,9 @@ func getFavoriteCount(ctx context.Context, fileID string) (int, error) {
 func getMyFavorites(ctx context.Context, userID string) ([]Favorite, error) {
 	var myFavs []Favorite
 	err := db.SelectContext(ctx, &myFavs, "SELECT sound_id, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC", userID)
+	if err == sql.ErrNoRows {
+		return []Favorite{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get Your Favorite Files: %w", err)
 	}
@@ -63,7 +72,7 @@ func getMyFavoritesMap(ctx context.Context, userID string) (map[string]time.Time
 	return res, nil
 }
 
-func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, error) {
+func getMyFavorite(ctx context.Context, userID, fileID string) (bool, error) {
 	myFavorite := ""
 	err := db.GetContext(ctx, &myFavorite, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
 	if err == sql.ErrNoRows {
@@ -75,17 +84,17 @@ func getMyFavorite(ctx context.Context, userID string, fileID string) (bool, err
 	return (myFavorite != ""), nil
 }
 
-func insertFileFavorite(ctx context.Context, userID string, composerID string, fileID string) error {
-	var _flag string
-	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
-	if err != nil && err != DBErrs["ErrNoRows"] {
-		return fmt.Errorf("Failed to toggle favorite: %w", err)
+func insertFileFavorite(ctx context.Context, opts FavoriteOptions) error {
+	var check int
+	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", opts.UserID, opts.SoundID)
+	if err != nil {
+		return fmt.Errorf("Failed to add the file to your favorite: %w", err)
 	}
-	if err == nil { // 既にfavoriteしている
-		return DBErrs["NoChange"]
+	if check == 1 { // 既にお気に入りされているとき
+		return ErrNoChange
 	}
 
-	_, err = db.ExecContext(ctx, "INSERT INTO favorites (user_id, composer_id, sound_id) VALUES (?, ?, ?)", userID, composerID, fileID)
+	_, err = db.ExecContext(ctx, "INSERT INTO favorites (user_id, composer_id, sound_id) VALUES (?, ?, ?)", opts.UserID, opts.ComposerID, opts.SoundID)
 	if err != nil {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)
 	}
@@ -93,17 +102,17 @@ func insertFileFavorite(ctx context.Context, userID string, composerID string, f
 	return nil
 }
 
-func deleteFileFavorite(ctx context.Context, userID, fileID string) error {
-	var _flag string
-	err := db.GetContext(ctx, &_flag, "SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1", userID, fileID)
-	if err == DBErrs["ErrNoRows"] { // 元々favoriteしていない
-		return DBErrs["NoChange"]
-	}
+func deleteFileFavorite(ctx context.Context, opts FavoriteOptions) error {
+	var check int
+	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", opts.UserID, opts.SoundID)
 	if err != nil {
-		return fmt.Errorf("Failed to toggle favorite: %w", err)
+		return fmt.Errorf("Failed to remove the file from your favorite: %w", err)
+	}
+	if check == 0 { // 元からお気に入りされていないとき
+		return ErrNoChange
 	}
 
-	_, err = db.ExecContext(ctx, "DELETE FROM favorites WHERE user_id = ? AND sound_id = ?", userID, fileID)
+	_, err = db.ExecContext(ctx, "DELETE FROM favorites WHERE user_id = ? AND sound_id = ?", opts.UserID, opts.SoundID)
 	if err != nil {
 		return fmt.Errorf("Failed to toggle favorite: %w", err)
 	}

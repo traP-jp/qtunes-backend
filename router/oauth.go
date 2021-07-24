@@ -43,13 +43,13 @@ func callbackHandler(c echo.Context) error {
 
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 
 	codeVerifier := sess.Values["codeVerifier"].(string)
 	res, err := getAccessToken(code, codeVerifier)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get access token: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get access token: %w", err).Error())
 	}
 	sess.Options = &sessions.Options{
 		Path:     "/",
@@ -60,12 +60,12 @@ func callbackHandler(c echo.Context) error {
 	sess.Values["refreshToken"] = res.RefreshToken
 	user, err := getMe(res.AccessToken)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Me: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Me: %w", err).Error())
 	}
 
 	err = model.CreateUser(c.Request().Context(), user)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to insert user: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to insert user: %w", err).Error())
 	}
 
 	sess.Values["id"] = user.ID
@@ -79,7 +79,7 @@ func callbackHandler(c echo.Context) error {
 
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to save session: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to save session: %w", err).Error())
 	}
 
 	return echo.NewHTTPError(http.StatusOK)
@@ -96,22 +96,22 @@ func postLogoutHandler(c echo.Context) error {
 	reqBody := strings.NewReader(form.Encode())
 	req, err := http.NewRequest("POST", path.String(), reqBody)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Making HTTP Request:%w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Making HTTP Request:%w", err).Error())
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	httpClient := http.DefaultClient
 	res, err := httpClient.Do(req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In HTTP Request:%w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In HTTP Request:%w", err).Error())
 	}
 	if res.StatusCode != 200 {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Access Token:(Status:%d %s)", res.StatusCode, res.Status))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Access Token:(Status:%d %s)", res.StatusCode, res.Status).Error())
 	}
 
 	err = s.RevokeSession(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to revoke session: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to revoke session: %w", err).Error())
 	}
 
 	return echo.NewHTTPError(http.StatusOK)
@@ -121,7 +121,7 @@ func postLogoutHandler(c echo.Context) error {
 func postGenerateCodeHandler(c echo.Context) error {
 	sess, err := session.Get("sessions", c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session:%w", err))
+		return errSessionNotFound(err)
 	}
 
 	pkceParams := PkceParams{}
@@ -132,7 +132,7 @@ func postGenerateCodeHandler(c echo.Context) error {
 
 	bytesCodeVerifier, err := randBytes(43)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to generate random bytes: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to generate random bytes: %w", err).Error())
 	}
 
 	codeVerifier := string(bytesCodeVerifier)
@@ -151,7 +151,7 @@ func postGenerateCodeHandler(c echo.Context) error {
 
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return echo.NewHTTPError(http.StatusOK, pkceParams)

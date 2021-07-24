@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"sort"
 
 	"fmt"
@@ -41,6 +42,9 @@ func CreateUser(ctx context.Context, user *User) error {
 func GetUser(ctx context.Context, accessToken string, userID string) (*User, error) {
 	var user User
 	err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = ? LIMIT 1", userID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get user: %w", err)
 	}
@@ -51,6 +55,9 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*UsersMe, error) {
 	var usersMe UsersMe
 	err := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users WHERE id = ? LIMIT 1", myUserID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get your information: %w", err)
 	}
