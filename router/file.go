@@ -96,7 +96,7 @@ func putFileFavoriteHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	fileID := c.Param("fileID")
 	fav := editFavoriteRequest{}
-	err := c.Bind(fav)
+	err := c.Bind(&fav)
 	if err != nil {
 		return errBind(err)
 	}
