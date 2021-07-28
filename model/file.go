@@ -132,7 +132,7 @@ func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite b
 
 	if isFavorite {
 		var composerID string
-		err := db.GetContext(ctx, &composerID, "SELECT conposer_id FROM files WHERE id = ? LIMIT 1", fileID)
+		err := db.GetContext(ctx, &composerID, "SELECT composer_id FROM files WHERE id = ? LIMIT 1", fileID)
 		if err == sql.ErrNoRows {
 			return ErrNotFound
 		}
