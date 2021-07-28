@@ -86,7 +86,7 @@ func getMyFavorite(ctx context.Context, userID, fileID string) (bool, error) {
 
 func insertFileFavorite(ctx context.Context, opts FavoriteOptions) error {
 	var check int
-	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", opts.UserID, opts.SoundID)
+	err := db.GetContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1)", opts.UserID, opts.SoundID)
 	if err != nil {
 		return fmt.Errorf("Failed to add the file to your favorite: %w", err)
 	}
@@ -104,7 +104,7 @@ func insertFileFavorite(ctx context.Context, opts FavoriteOptions) error {
 
 func deleteFileFavorite(ctx context.Context, opts FavoriteOptions) error {
 	var check int
-	err := db.SelectContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1) AS check", opts.UserID, opts.SoundID)
+	err := db.GetContext(ctx, &check, "SELECT EXISTS (SELECT sound_id FROM favorites WHERE user_id = ? AND sound_id = ? LIMIT 1)", opts.UserID, opts.SoundID)
 	if err != nil {
 		return fmt.Errorf("Failed to remove the file from your favorite: %w", err)
 	}

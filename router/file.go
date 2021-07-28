@@ -1,7 +1,7 @@
 package router
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 )
 
 type editFavoriteRequest struct {
-	Favorite bool `json:"favorite"`
+	Favorite *bool `json:"favorite"`
 }
 
 // getFilesHandler GET /files
@@ -82,7 +82,7 @@ func getFileDownloadHandler(c echo.Context) error {
 
 	info, err := file.Stat()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get file information: %w", err))
+		return generateEchoError(err)
 	}
 
 	c.Response().Header().Set(echo.HeaderContentType, res.Header.Get("Content-Type"))
@@ -96,9 +96,12 @@ func putFileFavoriteHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	fileID := c.Param("fileID")
 	fav := editFavoriteRequest{}
-	err := c.Bind(&fav)
+	err := c.Bind(fav)
 	if err != nil {
 		return errBind(err)
+	}
+	if fav.Favorite == nil {
+		return errBind(errors.New("invalid type"))
 	}
 	log.Printf("%+v", fav)
 
@@ -107,7 +110,7 @@ func putFileFavoriteHandler(c echo.Context) error {
 		return errSessionNotFound(err)
 	}
 	userID := sess.Values["id"].(string)
-	err = model.ToggleFileFavorite(ctx, userID, fileID, fav.Favorite)
+	err = model.ToggleFileFavorite(ctx, userID, fileID, *fav.Favorite)
 	if err != nil {
 		return generateEchoError(err)
 	}

@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
@@ -15,14 +16,15 @@ func generateEchoError(err error) error {
 	} else if errors.Is(err, model.ErrNoChange) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "No Change")
 	} else {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Something Wrong: %w", err).Error())
+		log.Println(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal Server Error")
 	}
 }
 
 func errSessionNotFound(err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed in Getting Session:%w", err).Error())
+	return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("Failed in Getting Session:%w", err).Error())
 }
 
 func errBind(err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed to bind request: %w", err).Error())
+	return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("Failed to bind request: %w", err).Error())
 }
