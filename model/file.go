@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -185,7 +186,15 @@ func DeleteFilesFromMessageId(ctx context.Context, messageID string) error {
 	return nil
 }
 
-func FindSong(ctx context.Context, queryer sqlx.QueryerContext, songTitle string) (*File, error) {
+func FindFileFromComposerName(ctx context.Context, queryer sqlx.QueryerContext,composerName string) (*User, error) {
+	var u User
+	if err := sqlx.GetContext(ctx, queryer, &u,"SELECT * FROM files WHERE composer_name=?", composerName); err != sql.ErrNoRows {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func FindFileFromTitle(ctx context.Context, queryer sqlx.QueryerContext, songTitle string) (*File, error) {
 	var file File
 	if err := sqlx.GetContext(ctx, queryer, &file, "SELECT * FROM files WHERE title=?", songTitle); err != nil {
 		return nil, err
