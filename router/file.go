@@ -115,3 +115,35 @@ func putFileFavoriteHandler(c echo.Context) error {
 
 	return echo.NewHTTPError(http.StatusOK)
 }
+
+// getFileFromTitleHandler GET /files/:title
+func getFileFromTitleHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	title := c.Param("title")
+	_, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+	}
+	file, err := model.FindFileFromTitle(ctx,title)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, file)
+}
+
+// getFileFromComposerNameHandler GET /files/:composerName
+func getFileFromComposerNameHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	name := c.Param("composerName")
+	_, err := session.Get("sessions", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
+	}
+	file, err := model.FindFileFromComposerName(ctx,name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, file)
+}
