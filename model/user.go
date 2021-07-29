@@ -107,6 +107,3 @@ func FindUser(ctx context.Context, queryer sqlx.QueryerContext,composerName stri
 	}
 	return &u,nil
 }
-
-
-

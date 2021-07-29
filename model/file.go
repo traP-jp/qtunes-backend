@@ -184,3 +184,11 @@ func DeleteFilesFromMessageId(ctx context.Context, messageID string) error {
 
 	return nil
 }
+
+func FindSong(ctx context.Context, queryer sqlx.QueryerContext, songTitle string) (*File, error) {
+	var file File
+	if err := sqlx.GetContext(ctx, queryer, &file, "SELECT * FROM files WHERE title=?", songTitle); err != nil {
+		return nil, err
+	}
+	return &file,nil
+}
