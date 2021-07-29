@@ -2,6 +2,8 @@ package model
 
 import (
 	"context"
+	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"sort"
 
 	"fmt"
@@ -97,3 +99,14 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 
 	return res, nil
 }
+
+func FindUser(ctx context.Context, queryer sqlx.QueryerContext,composerName string) (*User, error) {
+	var u User
+	if err:=sqlx.GetContext(ctx,queryer,&u,"SELECT * FROM files WHERE composer_name=?",composerName);err!=sql.ErrNoRows {
+			return nil, err
+	}
+	return &u,nil
+}
+
+
+
