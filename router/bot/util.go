@@ -13,10 +13,10 @@ var (
 
 func init() {
 	if verificationToken == "" {
-		panic(errors.New("verification token should not be empty."))
+		panic(errors.New("verification token should not be empty"))
 	}
 	if accessToken == "" {
-		panic(errors.New("access token should not be empty."))
+		panic(errors.New("access token should not be empty"))
 	}
 }
 

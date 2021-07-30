@@ -83,9 +83,9 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		return nil, err
 	}
 
-	fileIdMap := make(map[string]*File)
+	fileIDMap := make(map[string]*File)
 	for _, v := range files {
-		fileIdMap[v.ID] = v
+		fileIDMap[v.ID] = v
 	}
 
 	myFavs, err := getMyFavorites(ctx, userID)
@@ -99,7 +99,7 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 
 	res := make([]*File, 0, len(files))
 	for _, v := range myFavs {
-		res = append(res, fileIdMap[v.SoundID])
+		res = append(res, fileIDMap[v.SoundID])
 	}
 
 	return res, nil
