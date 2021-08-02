@@ -23,10 +23,10 @@ var (
 // パッケージの初期化
 func init() {
 	if clientID == "" {
-		panic(errors.New("clientID should not be empty."))
+		panic(errors.New("clientID should not be empty"))
 	}
 	if clientSecret == "" {
-		panic(errors.New("clientSecret should not be empty."))
+		panic(errors.New("clientSecret should not be empty"))
 	}
 }
 

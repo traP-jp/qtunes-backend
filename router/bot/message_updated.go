@@ -56,9 +56,7 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 			deleteFileIds = append(deleteFileIds, v)
 		}
 	}
-	if err := model.DeleteFiles(ctx, deleteFileIds); err != nil {
-		return err
-	}
+	err = model.DeleteFiles(ctx, deleteFileIds)
 
-	return nil
+	return err
 }
