@@ -15,8 +15,6 @@ services:
       MARIADB_HOSTNAME: back-end_mariadb_1
     volumes:
       - ./:/go/src/github.com/hackathon-21-spring-02/back-end
-    # entrypoint: dockerize -timeout 60s -wait tcp://mysql:3306
-    command: ./main
     expose:
       - "80"
       - "6060"
