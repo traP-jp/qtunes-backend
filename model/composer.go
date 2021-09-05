@@ -55,11 +55,14 @@ func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) 
 func GetComposer(ctx context.Context, accessToken string, composerID string) (*Composer, error) {
 	client, auth := NewTraqClient(accessToken)
 	user, res, err := client.UserApi.GetUser(auth, composerID)
-	if err != nil {
-		return nil, err
+	if res.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	postCountByUser, err := getComposersMap(ctx)

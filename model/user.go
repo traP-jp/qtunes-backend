@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"sort"
 
 	"fmt"
@@ -41,6 +42,9 @@ func CreateUser(ctx context.Context, user *User) error {
 func GetUser(ctx context.Context, accessToken string, userID string) (*User, error) {
 	var user User
 	err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = ? LIMIT 1", userID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get user: %w", err)
 	}
@@ -51,6 +55,9 @@ func GetUser(ctx context.Context, accessToken string, userID string) (*User, err
 func GetUsersMe(ctx context.Context, accessToken string, myUserID string) (*UsersMe, error) {
 	var usersMe UsersMe
 	err := db.GetContext(ctx, &usersMe, "SELECT id, name FROM users WHERE id = ? LIMIT 1", myUserID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get your information: %w", err)
 	}
@@ -76,9 +83,9 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 		return nil, err
 	}
 
-	fileIdMap := make(map[string]*File)
+	fileIDMap := make(map[string]*File)
 	for _, v := range files {
-		fileIdMap[v.ID] = v
+		fileIDMap[v.ID] = v
 	}
 
 	myFavs, err := getMyFavorites(ctx, userID)
@@ -92,7 +99,7 @@ func GetUsersMeFavorites(ctx context.Context, accessToken string, userID string)
 
 	res := make([]*File, 0, len(files))
 	for _, v := range myFavs {
-		res = append(res, fileIdMap[v.SoundID])
+		res = append(res, fileIDMap[v.SoundID])
 	}
 
 	return res, nil

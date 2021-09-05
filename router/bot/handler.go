@@ -16,12 +16,12 @@ const (
 func Handler(c echo.Context) error {
 	token := c.Request().Header.Get(botTokenHeader)
 	if token != verificationToken {
-		return c.NoContent(http.StatusUnauthorized)
+		return echo.NewHTTPError(http.StatusUnauthorized)
 	}
 
 	event := c.Request().Header.Get(botEventHeader)
 	if len(event) == 0 {
-		return c.NoContent(http.StatusBadRequest)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	ctx := c.Request().Context()
@@ -31,47 +31,47 @@ func Handler(c echo.Context) error {
 		payload := &traqbot.MessageCreatedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageCreatedHandler(ctx, accessToken, payload)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "MESSAGE_UPDATED":
 		payload := &traqbot.MessageUpdatedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageUpdatedHandler(ctx, accessToken, payload)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "MESSAGE_DELETED":
 		payload := &traqbot.MessageDeletedPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = MessageDeletedHandler(ctx, payload)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	case "PING":
 		payload := &traqbot.PingPayload{}
 		err := c.Bind(payload)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to bind request: %w", err).Error())
 		}
 
 		err = PingHandler(payload)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err))
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to handle event: %w", err).Error())
 		}
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	return echo.NewHTTPError(http.StatusNoContent)
 }

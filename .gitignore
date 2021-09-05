@@ -1,4 +1,5 @@
 .env
 mysql/data
 main
+tmp
 .idea/*

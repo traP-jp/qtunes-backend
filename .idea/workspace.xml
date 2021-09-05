@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="584319d0-d7fe-46bd-8786-c29aa2f2518b" name="Default Changelist" comment="">
+    <list default="true" id="584319d0-d7fe-46bd-8786-c29aa2f2518b" name="Default Changelist" comment="Default Changelist">
+      <change afterPath="$PROJECT_DIR$/.air.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.github/workflows/ci.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.tool-versions" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/errors.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/router/errors.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/webhook.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/webhook.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.golangci.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.golangci.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.realize.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/composer.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/composer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/db.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/favorite.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/file.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/file.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/bot/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/bot/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/bot/message_deleted.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/bot/message_deleted.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/bot/message_updated.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/bot/message_updated.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/bot/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/bot/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/composer.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/composer.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/router/file.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/file.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/middleware.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/oauth.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/oauth.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

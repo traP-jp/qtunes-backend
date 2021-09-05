@@ -27,6 +27,9 @@ type File struct {
 func GetFiles(ctx context.Context, userID string) ([]*File, error) {
 	var files []*File
 	err := db.SelectContext(ctx, &files, "SELECT * FROM files ORDER BY created_at DESC")
+	if err == sql.ErrNoRows {
+		return []*File{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
@@ -71,6 +74,9 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 
 	var file File
 	err = db.GetContext(ctx, &file, "SELECT * FROM files LIMIT 1 OFFSET ?", r)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -81,6 +87,9 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	var file File
 	err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
@@ -102,7 +111,7 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 	return &file, nil
 }
 
-func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*os.File, *http.Response, error) {
+func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File, *http.Response, error) {
 	client, auth := NewTraqClient(accessToken)
 	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
@@ -115,19 +124,28 @@ func GetFileDownload(ctx context.Context, fileID string, accessToken string) (*o
 	return file, res, nil
 }
 
-func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favorite bool) error {
-	if favorite {
-		var file File
-		err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE id = ? LIMIT 1", fileID)
+func ToggleFileFavorite(ctx context.Context, userID, fileID string, isFavorite bool) error {
+	opts := FavoriteOptions{
+		UserID:  userID,
+		SoundID: fileID,
+	}
+
+	if isFavorite {
+		var composerID string
+		err := db.GetContext(ctx, &composerID, "SELECT composer_id FROM files WHERE id = ? LIMIT 1", fileID)
+		if err == sql.ErrNoRows {
+			return ErrNotFound
+		}
 		if err != nil {
 			return fmt.Errorf("Failed to get files: %w", err)
 		}
 
-		if err := insertFileFavorite(ctx, userID, file.ComposerID, fileID); err != nil {
+		opts.ComposerID = composerID
+		if err := insertFileFavorite(ctx, opts); err != nil {
 			return err
 		}
 	} else {
-		if err := deleteFileFavorite(ctx, userID, fileID); err != nil {
+		if err := deleteFileFavorite(ctx, opts); err != nil {
 			return err
 		}
 	}
@@ -138,6 +156,9 @@ func ToggleFileFavorite(ctx context.Context, userID string, fileID string, favor
 func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error) {
 	var files []string
 	err := db.SelectContext(ctx, &files, "SELECT id FROM files WHERE message_id = ?", messageID)
+	if err == sql.ErrNoRows {
+		return []string{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get files: %w", err)
 	}
@@ -173,7 +194,7 @@ func DeleteFiles(ctx context.Context, fileIDs []string) error {
 	return nil
 }
 
-func DeleteFilesFromMessageId(ctx context.Context, messageID string) error {
+func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 	_, err := db.ExecContext(
 		ctx,
 		"DELETE favorites, files FROM files LEFT JOIN favorites ON favorites.sound_id = files.id WHERE files.message_id = ?",
