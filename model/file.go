@@ -209,16 +209,24 @@ func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 
 func FindFileFromComposerName(ctx context.Context, composerName string) (*File, error) {
 	var file File
-	if err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE composer_name = ?", composerName); err != nil {
-		return nil, err
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name = ?", composerName)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get composerName: %w",err)
 	}
 	return &file, nil
 }
 
 func FindFileFromTitle(ctx context.Context, songTitle string) (*File, error) {
 	var file File
-	if err := db.GetContext(ctx, &file, "SELECT * FROM files WHERE title = ?", songTitle); err != nil {
-		return nil, err
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ", songTitle)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get composerName: %w",err)
 	}
 	return &file, nil
 }
