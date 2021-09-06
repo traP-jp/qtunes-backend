@@ -2,6 +2,7 @@ package router
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -118,7 +119,7 @@ func putFileFavoriteHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK)
 }
 
-// getFileFromTitleHandler GET /files/:title
+// getFileFromTitleHandler GET /files/title/:title
 func getFileFromTitleHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	title := c.Param("title")
@@ -134,15 +135,15 @@ func getFileFromTitleHandler(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusOK, file)
 }
 
-// getFileFromComposerNameHandler GET /files/:composerName
+// getFileFromComposerNameHandler GET /files/composer/:composerName
 func getFileFromComposerNameHandler(c echo.Context) error {
 	ctx := c.Request().Context()
-	name := c.Param("composerName")
+	composerName := c.Param("composerName")
 	_, err := session.Get("sessions", c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
-	file, err := model.FindFileFromComposerName(ctx,name)
+	file, err := model.FindFileFromComposerName(ctx,composerName)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
