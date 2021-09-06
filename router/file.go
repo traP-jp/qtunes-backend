@@ -127,7 +127,7 @@ func getFileFromTitleHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
-	file, err := model.FindFileFromTitle(ctx,title)
+	file, err := model.FindFileFromTitle(ctx, title)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -143,7 +143,7 @@ func getFileFromComposerNameHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("Failed In Getting Session: %w", err))
 	}
-	file, err := model.FindFileFromComposerName(ctx,composerName)
+	file, err := model.FindFileFromComposerName(ctx, composerName)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
