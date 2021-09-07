@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	traq "github.com/sapphi-red/go-traq"
 	"math/rand"
 	"net/http"
 	"os"
-	"time"
 	"strings"
-	"github.com/jmoiron/sqlx"
-	traq "github.com/sapphi-red/go-traq"
+	"time"
 )
 
 type File struct {
@@ -212,10 +212,10 @@ func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File
 	slice := strings.Split(composerName, "")
 	var likeComposer string
 	for _, i := range slice {
-		likeComposer+="%"
-		likeComposer+=i
+		likeComposer += "%"
+		likeComposer += i
 	}
-	likeComposer+="%"
+	likeComposer += "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?", likeComposer)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
@@ -231,10 +231,10 @@ func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
 	slice := strings.Split(songTitle, "")
 	var likeTitle string
 	for _, i := range slice {
-		likeTitle+="%"
-		likeTitle+=i
+		likeTitle += "%"
+		likeTitle += i
 	}
-	likeTitle+="%"
+	likeTitle += "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ?", likeTitle)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
