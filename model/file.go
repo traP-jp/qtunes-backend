@@ -214,10 +214,10 @@ func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File
 	likeComposer += "%"
 	for i, s := range slice {
 		likeComposer += s
-		if i==1 {
+		if i == 1 {
 			continue
 		}
-		likeComposer+="%"
+		likeComposer += "%"
 	}
 	likeComposer += "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?", likeComposer)
@@ -237,10 +237,10 @@ func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
 	likeTitle += "%"
 	for i, s := range slice {
 		likeTitle += s
-		if i==1 {
+		if i == 1 {
 			continue
 		}
-		likeTitle+="%"
+		likeTitle += "%"
 	}
 	likeTitle += "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ?", likeTitle)
