@@ -209,7 +209,7 @@ func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 
 func FindFileFromComposerName(ctx context.Context, composerName string) (*File, error) {
 	var file File
-	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name = ?", composerName)
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?, composerName)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
