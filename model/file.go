@@ -214,20 +214,20 @@ func FindFileFromComposerName(ctx context.Context, composerName string) (*File, 
 		return nil, ErrNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get composerName: %w",err)
+		return nil, fmt.Errorf("Failed to get composerName: %w", err)
 	}
 	return &file, nil
 }
 
 func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
 	var file []*File
-	 s:= "%"+songTitle+"%"
+	s := "%" + songTitle + "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ?", s)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get title: %w",err)
+		return nil, fmt.Errorf("Failed to get title: %w", err)
 	}
 	return file, nil
 }
