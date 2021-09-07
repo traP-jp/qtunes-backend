@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -209,17 +208,7 @@ func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 
 func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File, error) {
 	var file []*File
-	slice := strings.Split(composerName, "")
-	var likeComposer string
-	likeComposer += "%"
-	for i, s := range slice {
-		likeComposer += s
-		if i == 1 {
-			continue
-		}
-		likeComposer += "%"
-	}
-	likeComposer += "%"
+	likeComposer := "%" + composerName + "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?", likeComposer)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
@@ -232,17 +221,7 @@ func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File
 
 func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
 	var file []*File
-	slice := strings.Split(songTitle, "")
-	var likeTitle string
-	likeTitle += "%"
-	for i, s := range slice {
-		likeTitle += s
-		if i == 1 {
-			continue
-		}
-		likeTitle += "%"
-	}
-	likeTitle += "%"
+	likeTitle := "%" + songTitle + "%"
 	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ?", likeTitle)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
