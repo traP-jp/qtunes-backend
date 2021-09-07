@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"strings"
 	"github.com/jmoiron/sqlx"
 	traq "github.com/sapphi-red/go-traq"
 )
@@ -207,16 +207,23 @@ func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 	return nil
 }
 
-func FindFileFromComposerName(ctx context.Context, composerName string) (*File, error) {
-	var file File
-	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?, composerName)
+func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File, error) {
+	var file []*File
+	slice := strings.Split(composerName, "")
+	var likeComposer string
+	for _, i := range slice {
+		likeComposer+="%"
+		likeComposer+=i
+	}
+	likeComposer+="%"
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ?", likeComposer)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get composerName: %w", err)
 	}
-	return &file, nil
+	return file, nil
 }
 
 func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
