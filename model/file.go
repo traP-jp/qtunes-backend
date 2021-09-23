@@ -222,7 +222,7 @@ func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File
 func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
 	var file []*File
 	likeTitle := "%" + songTitle + "%"
-	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ?", likeTitle)
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ? ORDER BY CASE WHEN title = ? THEN 0 WHEN title LIKE ? THEN 1 ELSE 2 END", likeTitle,songTitle,likeTitle[1:])
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
