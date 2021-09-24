@@ -215,6 +215,8 @@ paths:
           description: Unprocessable Entity
       operationId: putFileFavorite
   /files/title/{title}:
+    parameters:
+      - $ref: '#/components/parameters/title'
     get:
       tags:
         - file
@@ -230,6 +232,8 @@ paths:
           description: Not Found
       operationId: FindFileFromTitle
   /files/composer/{composerName}:
+    parameters:
+      - $ref: '#/components/parameters/composerName'
     get:
       tags:
         - file
@@ -326,6 +330,14 @@ components:
       schema:
         type: string
         format: uuid
+    title:
+      name: title
+      description: ファイルのタイトル名
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9_-]{1,32}$'
   schemas:
     User:
       title: User
