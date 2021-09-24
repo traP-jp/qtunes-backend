@@ -4,13 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	traq "github.com/sapphi-red/go-traq"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/jmoiron/sqlx"
-	traq "github.com/sapphi-red/go-traq"
 )
 
 type File struct {
@@ -205,4 +204,30 @@ func DeleteFilesFromMessageID(ctx context.Context, messageID string) error {
 	}
 
 	return nil
+}
+
+func FindFileFromComposerName(ctx context.Context, composerName string) ([]*File, error) {
+	var file []*File
+	likeComposer := "%" + composerName + "%"
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE composer_name LIKE ? ORDER BY CASE WHEN composer_name = ? THEN 0 WHEN composer_name LIKE ? THEN 1 ELSE 2 END", likeComposer, composerName, likeComposer[1:])
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get composerName: %w", err)
+	}
+	return file, nil
+}
+
+func FindFileFromTitle(ctx context.Context, songTitle string) ([]*File, error) {
+	var file []*File
+	likeTitle := "%" + songTitle + "%"
+	err := db.SelectContext(ctx, &file, "SELECT * FROM files WHERE title LIKE ? ORDER BY CASE WHEN title = ? THEN 0 WHEN title LIKE ? THEN 1 ELSE 2 END", likeTitle, songTitle, likeTitle[1:])
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get title: %w", err)
+	}
+	return file, nil
 }

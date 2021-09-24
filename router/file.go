@@ -117,3 +117,35 @@ func putFileFavoriteHandler(c echo.Context) error {
 
 	return echo.NewHTTPError(http.StatusOK)
 }
+
+// getFileFromTitleHandler GET /files/title/:title
+func getFileFromTitleHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	title := c.Param("title")
+	_, err := session.Get("sessions", c)
+	if err != nil {
+		return errSessionNotFound(err)
+	}
+	file, err := model.FindFileFromTitle(ctx, title)
+	if err != nil {
+		return generateEchoError(err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, file)
+}
+
+// getFileFromComposerNameHandler GET /files/composer/:composerName
+func getFileFromComposerNameHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+	composerName := c.Param("composerName")
+	_, err := session.Get("sessions", c)
+	if err != nil {
+		return errSessionNotFound(err)
+	}
+	file, err := model.FindFileFromComposerName(ctx, composerName)
+	if err != nil {
+		return generateEchoError(err)
+	}
+
+	return echo.NewHTTPError(http.StatusOK, file)
+}
