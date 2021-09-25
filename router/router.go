@@ -111,8 +111,8 @@ func SetRouting(sess sess.Session, env string) {
 			apiFiles.GET("/:fileID", getFileHandler, userAuthMiddleware)
 			apiFiles.GET("/:fileID/download", getFileDownloadHandler, userAuthMiddleware)
 			apiFiles.PUT("/:fileID/favorite", putFileFavoriteHandler, userAuthMiddleware)
-			apiFiles.GET("/title/:title", getFileFromTitleHandler, userAuthMiddleware)
-			apiFiles.GET("/composer/:composerName", getFileFromComposerNameHandler, userAuthMiddleware)
+			apiFiles.GET("/title/:title", getFilesFromTitleHandler, userAuthMiddleware)
+			apiFiles.GET("/composer/:composerName", getFilesFromComposerNameHandler, userAuthMiddleware)
 		}
 
 		// OAuth関連
