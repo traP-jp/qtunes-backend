@@ -20,7 +20,7 @@ down:
 
 .PHONY: lint
 lint:
-	@docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:latest golangci-lint run
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix
 
 .PHONY: db-dev
 db-dev:
