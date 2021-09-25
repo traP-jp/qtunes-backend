@@ -227,7 +227,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
         404:
           description: Not Found
       operationId: FindFileFromTitle
@@ -244,7 +246,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
         404:
           description: Not Found
       operationId: FindFileFromComposerName
