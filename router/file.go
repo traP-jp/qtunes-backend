@@ -119,7 +119,7 @@ func putFileFavoriteHandler(c echo.Context) error {
 }
 
 // getFileFromTitleHandler GET /files/title/:title
-func getFileFromTitleHandler(c echo.Context) error {
+func getFilesFromTitleHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	title := c.Param("title")
 	_, err := session.Get("sessions", c)
@@ -135,7 +135,7 @@ func getFileFromTitleHandler(c echo.Context) error {
 }
 
 // getFileFromComposerNameHandler GET /files/composer/:composerName
-func getFileFromComposerNameHandler(c echo.Context) error {
+func getFilesFromComposerNameHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	composerName := c.Param("composerName")
 	_, err := session.Get("sessions", c)
