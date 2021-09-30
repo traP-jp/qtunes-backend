@@ -12,11 +12,12 @@ import (
 
 //MessageUpdatedHandler MessageUpdatedイベントを処理する
 func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageUpdatedPayload) error {
-	fileIDs := extractFileIDs(payload.Message.Text)
+	fileIDs := model.ExtractFileIDs(payload.Message.Text)
 
 	insertReq := make([]*model.File, 0, len(fileIDs))
 	client, auth := model.NewTraqClient(accessToken)
 	for _, v := range fileIDs {
+		// TODO: N回回してるけどclient.FileApi.GetFilesでlimit=len(fileIDs)にすれば1回で必要分全部取得できそう
 		file, res, err := client.FileApi.GetFileMeta(auth, v)
 		if err != nil {
 			return err
@@ -28,7 +29,7 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		if strings.HasPrefix(file.Mime, "audio") {
 			insertReq = append(insertReq, &model.File{
 				ID:           file.Id,
-				Title:        removeExtensions(file.Name),
+				Title:        model.RemoveExtensions(file.Name),
 				ComposerID:   payload.Message.User.ID,
 				ComposerName: payload.Message.User.Name,
 				MessageID:    payload.Message.ID,
