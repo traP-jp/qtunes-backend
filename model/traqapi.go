@@ -9,10 +9,13 @@ import (
 	traq "github.com/sapphi-red/go-traq"
 )
 
+type GetUsersOpts traq.UserApiGetUsersOpts
+type GetFileOpts traq.FileApiGetFileOpts
+
 type TraqAPI interface {
-	GetUsers(opts *traq.UserApiGetUsersOpts) ([]traq.User, error)
+	GetUsers(opts *GetUsersOpts) ([]traq.User, error)
 	GetUser(id string) (*traq.UserDetail, error)
-	GetFile(id string, opts *traq.FileApiGetFileOpts) (*os.File, *http.Response, error)
+	GetFile(id string, opts *GetFileOpts) (*os.File, *http.Response, error)
 	GetFileMeta(id string) (*traq.FileInfo, error)
 }
 
@@ -28,8 +31,11 @@ func NewTraqAPI(accessToken string) TraqAPI {
 	return &traqAPI{client, auth}
 }
 
-func (a *traqAPI) GetUsers(opts *traq.UserApiGetUsersOpts) ([]traq.User, error) {
-	users, res, err := a.client.UserApi.GetUsers(a.auth, opts)
+func (a *traqAPI) GetUsers(opts *GetUsersOpts) ([]traq.User, error) {
+	users, res, err := a.client.UserApi.GetUsers(a.auth, &traq.UserApiGetUsersOpts{
+		IncludeSuspended: opts.IncludeSuspended,
+		Name:             opts.Name,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +61,10 @@ func (a *traqAPI) GetUser(id string) (*traq.UserDetail, error) {
 	return &user, nil
 }
 
-func (a *traqAPI) GetFile(id string, opts *traq.FileApiGetFileOpts) (*os.File, *http.Response, error) {
-	file, res, err := a.client.FileApi.GetFile(a.auth, id, opts)
+func (a *traqAPI) GetFile(id string, opts *GetFileOpts) (*os.File, *http.Response, error) {
+	file, res, err := a.client.FileApi.GetFile(a.auth, id, &traq.FileApiGetFileOpts{
+		Dl: opts.Dl,
+	})
 	if err != nil {
 		return nil, res, err
 	}

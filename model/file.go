@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	traq "github.com/sapphi-red/go-traq"
 )
 
 type File struct {
@@ -113,7 +112,7 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 
 func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File, *http.Response, error) {
 	traqapi := NewTraqAPI(accessToken)
-	file, res, err := traqapi.GetFile(fileID, &traq.FileApiGetFileOpts{})
+	file, res, err := traqapi.GetFile(fileID, &GetFileOpts{})
 	if err != nil {
 		return nil, nil, err
 	}

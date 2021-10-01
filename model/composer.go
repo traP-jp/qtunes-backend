@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/antihax/optional"
-	"github.com/sapphi-red/go-traq"
 )
 
 type Composer struct {
@@ -19,7 +18,7 @@ type Composer struct {
 
 func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
 	traqapi := NewTraqAPI(accessToken)
-	users, err := traqapi.GetUsers(&traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
+	users, err := traqapi.GetUsers(&GetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*C
 
 func GetComposerByName(ctx context.Context, accessToken string, name string) (*Composer, error) {
 	traqapi := NewTraqAPI(accessToken)
-	users, err := traqapi.GetUsers(&traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
+	users, err := traqapi.GetUsers(&GetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
 	}
