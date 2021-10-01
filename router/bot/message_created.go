@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/hackathon-21-spring-02/back-end/model"
@@ -15,14 +14,11 @@ func MessageCreatedHandler(ctx context.Context, accessToken string, payload *tra
 	fileIDs := extractFileIDs(payload.Message.Text)
 
 	insertReq := make([]*model.File, 0, len(fileIDs))
-	client, auth := model.NewTraqClient(accessToken)
+	traqapi := model.NewTraqAPI(accessToken)
 	for _, v := range fileIDs {
-		file, res, err := client.FileApi.GetFileMeta(auth, v)
+		file, err := traqapi.GetFileMeta(v)
 		if err != nil {
 			return err
-		}
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 		}
 
 		if strings.HasPrefix(file.Mime, "audio") {

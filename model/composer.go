@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sort"
 	"time"
 
@@ -19,13 +18,10 @@ type Composer struct {
 }
 
 func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
-	client, auth := NewTraqClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
+	traqapi := NewTraqAPI(accessToken)
+	users, err := traqapi.GetUsers(&traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
 	composersMap, err := getComposersMap(ctx)
@@ -53,14 +49,8 @@ func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) 
 }
 
 func GetComposer(ctx context.Context, accessToken string, composerID string) (*Composer, error) {
-	client, auth := NewTraqClient(accessToken)
-	user, res, err := client.UserApi.GetUser(auth, composerID)
-	if res.StatusCode == http.StatusNotFound {
-		return nil, ErrNotFound
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
-	}
+	traqapi := NewTraqAPI(accessToken)
+	user, err := traqapi.GetUser(composerID)
 	if err != nil {
 		return nil, err
 	}
@@ -80,13 +70,10 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*C
 }
 
 func GetComposerByName(ctx context.Context, accessToken string, name string) (*Composer, error) {
-	client, auth := NewTraqClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{Name: optional.NewString(name)})
+	traqapi := NewTraqAPI(accessToken)
+	users, err := traqapi.GetUsers(&traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
 	if err != nil {
 		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 	if len(users) != 1 {
 		return nil, fmt.Errorf("Invalid name")
@@ -109,13 +96,10 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*C
 }
 
 func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*File, error) {
-	client, auth := NewTraqClient(accessToken)
-	user, res, err := client.UserApi.GetUser(auth, composerID)
+	traqapi := NewTraqAPI(accessToken)
+	user, err := traqapi.GetUser(composerID)
 	if err != nil {
 		return nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
 	files, err := GetFiles(ctx, composerID)

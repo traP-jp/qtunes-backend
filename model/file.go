@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	traq "github.com/sapphi-red/go-traq"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+	traq "github.com/sapphi-red/go-traq"
 )
 
 type File struct {
@@ -111,13 +112,10 @@ func GetFile(ctx context.Context, userID, fileID string) (*File, error) {
 }
 
 func GetFileDownload(ctx context.Context, fileID, accessToken string) (*os.File, *http.Response, error) {
-	client, auth := NewTraqClient(accessToken)
-	file, res, err := client.FileApi.GetFile(auth, fileID, &traq.FileApiGetFileOpts{})
+	traqapi := NewTraqAPI(accessToken)
+	file, res, err := traqapi.GetFile(fileID, &traq.FileApiGetFileOpts{})
 	if err != nil {
 		return nil, nil, err
-	}
-	if res.StatusCode != http.StatusOK {
-		return nil, res, fmt.Errorf("failed in HTTP request:(status:%d %s)", res.StatusCode, res.Status)
 	}
 
 	return file, res, nil
