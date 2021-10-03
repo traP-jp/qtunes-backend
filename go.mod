@@ -24,7 +24,6 @@ require (
 )
 
 require (
-	github.com/caos/oidc v0.15.10 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
