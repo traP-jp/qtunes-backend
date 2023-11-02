@@ -10,14 +10,14 @@ import (
 	traqbot "github.com/traPtitech/traq-bot"
 )
 
-//MessageUpdatedHandler MessageUpdatedイベントを処理する
+// MessageUpdatedHandler MessageUpdatedイベントを処理する
 func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *traqbot.MessageUpdatedPayload) error {
 	fileIDs := extractFileIDs(payload.Message.Text)
 
 	insertReq := make([]*model.File, 0, len(fileIDs))
 	client, auth := model.NewTraqClient(accessToken)
 	for _, v := range fileIDs {
-		file, res, err := client.FileApi.GetFileMeta(auth, v)
+		file, res, err := client.FileApi.GetFileMeta(auth, v).Execute()
 		if err != nil {
 			return err
 		}

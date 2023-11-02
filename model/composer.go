@@ -6,9 +6,6 @@ import (
 	"net/http"
 	"sort"
 	"time"
-
-	"github.com/antihax/optional"
-	"github.com/sapphi-red/go-traq"
 )
 
 type Composer struct {
@@ -20,7 +17,7 @@ type Composer struct {
 
 func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) {
 	client, auth := NewTraqClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{IncludeSuspended: optional.NewBool(true)})
+	users, res, err := client.UserApi.GetUsers(auth).IncludeSuspended(true).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +51,7 @@ func GetComposers(ctx context.Context, accessToken string) ([]*Composer, error) 
 
 func GetComposer(ctx context.Context, accessToken string, composerID string) (*Composer, error) {
 	client, auth := NewTraqClient(accessToken)
-	user, res, err := client.UserApi.GetUser(auth, composerID)
+	user, res, err := client.UserApi.GetUser(auth, composerID).Execute()
 	if res.StatusCode == http.StatusNotFound {
 		return nil, ErrNotFound
 	}
@@ -81,7 +78,7 @@ func GetComposer(ctx context.Context, accessToken string, composerID string) (*C
 
 func GetComposerByName(ctx context.Context, accessToken string, name string) (*Composer, error) {
 	client, auth := NewTraqClient(accessToken)
-	users, res, err := client.UserApi.GetUsers(auth, &traq.UserApiGetUsersOpts{Name: optional.NewString(name)})
+	users, res, err := client.UserApi.GetUsers(auth).Name(name).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +107,7 @@ func GetComposerByName(ctx context.Context, accessToken string, name string) (*C
 
 func GetComposerFiles(ctx context.Context, accessToken string, composerID string, userID string) ([]*File, error) {
 	client, auth := NewTraqClient(accessToken)
-	user, res, err := client.UserApi.GetUser(auth, composerID)
+	user, res, err := client.UserApi.GetUser(auth, composerID).Execute()
 	if err != nil {
 		return nil, err
 	}

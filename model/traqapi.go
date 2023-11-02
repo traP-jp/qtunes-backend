@@ -3,7 +3,7 @@ package model
 import (
 	"context"
 
-	traq "github.com/sapphi-red/go-traq"
+	traq "github.com/traPtitech/go-traq"
 )
 
 func NewTraqClient(accessToken string) (*traq.APIClient, context.Context) {
