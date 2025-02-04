@@ -68,7 +68,6 @@ func GetRandomFile(ctx context.Context, userID string) (*File, error) {
 		return nil, err
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	r := rand.Intn(count)
 
 	var file File
