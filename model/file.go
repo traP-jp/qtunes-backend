@@ -21,6 +21,7 @@ type File struct {
 	FavoriteCount  int       `json:"favorite_count"  db:"-"`
 	IsFavoriteByMe bool      `json:"is_favorite_by_me"  db:"-"`
 	CreatedAt      time.Time `json:"created_at"  db:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"  db:"updated_at"`
 }
 
 func GetFiles(ctx context.Context, userID string) ([]*File, error) {
@@ -164,11 +165,25 @@ func GetFileIDsInMessage(ctx context.Context, messageID string) ([]string, error
 }
 
 func InsertFiles(ctx context.Context, files []*File) error {
+	uniqueFileMap := make(map[string]*File, len(files))
+	for _, f := range files {
+		uniqueFileMap[f.ID] = f
+	}
+	uniqueFiles := make([]*File, 0, len(uniqueFileMap))
+	for _, f := range uniqueFileMap {
+		uniqueFiles = append(uniqueFiles, f)
+	}
+
 	_, err := db.NamedExecContext(
 		ctx,
-		`INSERT IGNORE INTO files (id, title, composer_id, composer_name, message_id, created_at)
-		VALUES (:id, :title, :composer_id, :composer_name, :message_id, :created_at)`,
-		files,
+		`INSERT INTO files (id, title, composer_id, composer_name, message_id, created_at)
+		VALUES (:id, :title, :composer_id, :composer_name, :message_id, :created_at)
+		ON DUPLICATE KEY UPDATE
+		title = VALUES(title),
+		composer_id = VALUES(composer_id),
+		composer_name = VALUES(composer_name),
+		message_id = VALUES(message_id)`,
+		uniqueFiles,
 	)
 	if err != nil {
 		return err
