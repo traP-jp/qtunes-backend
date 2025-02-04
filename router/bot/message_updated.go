@@ -37,7 +37,23 @@ func MessageUpdatedHandler(ctx context.Context, accessToken string, payload *tra
 		}
 	}
 
-	if err := model.InsertFiles(ctx, insertReq); err != nil {
+	existingFileIDs, err := model.GetFileIDsInMessage(ctx, payload.Message.ID)
+	if err != nil {
+		return err
+	}
+	existingFileMap := make(map[string]struct{}, len(existingFileIDs))
+	for _, id := range existingFileIDs {
+		existingFileMap[id] = struct{}{}
+	}
+
+	uniqueInsertReq := make([]*model.File, 0, len(insertReq))
+	for _, file := range insertReq {
+		if _, exists := existingFileMap[file.ID]; !exists {
+			uniqueInsertReq = append(uniqueInsertReq, file)
+		}
+	}
+
+	if err := model.InsertFiles(ctx, uniqueInsertReq); err != nil {
 		return fmt.Errorf("failed to insert file: %w", err)
 	}
 
